@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "auth-fastapi-beanie-poetry"
+version = "0.1.0"
+description = ""
+authors = ["Christian Bueno <chmabuen@espol.edu.ec>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.111.0"
+beanie = "^1.26.0"
+uvicorn = "^0.30.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
