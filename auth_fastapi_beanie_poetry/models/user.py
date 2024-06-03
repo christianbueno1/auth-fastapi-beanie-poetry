@@ -1,12 +1,22 @@
-# app/db/mongo.py
-from beanie import init_beanie
-from motor.motor_asyncio import AsyncIOMotorClient
-from app.models.user import User
-from app.models.todo import Todo
+from datetime import datetime
+from beanie import Document
 
-async def init_db():
-    client = AsyncIOMotorClient("mongodb://localhost:27017")
-    await init_beanie(database=client.db_name, document_models=[User, Todo])
 
-# client.db_name
-# client.get_default_database()
+class User(Document):
+    username: str
+    email: str
+    hashed_password: str
+    created_at: datetime = datetime.now()
+
+    class Settings:
+        collection = "users"
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "username": "johndoe",
+                "email": "johndoe@ibm.com",
+                "hashed_password": "password",
+                "created_at": "2021-01-01T00:00:00",
+            }
+        }
