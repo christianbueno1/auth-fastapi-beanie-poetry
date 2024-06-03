@@ -246,3 +246,4 @@ You can use tools like **Postman** or **httpie** to test your API endpoints.
 - **JWT for Authentication**: Secure your API with JWT and refresh tokens for session management.
 
 By following these steps, you'll create a robust authentication system for your FastAPI project using MongoDB and Beanie ODM, all managed with Poetry.
+
