@@ -4,6 +4,12 @@
 - Give me an example of structure of files in a python backend web application or REST API, following the best conventions in architecture in microservices, low coupling, high cohesion, SOLID
 
 ## Notes
+```
+# new 3.10
+username: str | None = None
+# old
+username: Optional[str] = None
+```
 
 ## packages
 ```
@@ -29,4 +35,22 @@ SECRET_KEY = "83daa0256a2289b0fb23693bf1f6034d44396675749244721a2b20e896e11662"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 FRONTEND_URL = "http://localhost:5173"
+```
+
+## Poetry
+```
+# create a default dir
+poetry new sample-project
+
+# virtual env
+poetry shell
+
+ 
+# add flask
+poetry add flask
+poetry add beanie
+
+# dev dep
+poetry add --dev pytest
+
 ```

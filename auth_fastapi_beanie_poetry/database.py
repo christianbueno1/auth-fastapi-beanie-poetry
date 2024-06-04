@@ -13,4 +13,13 @@ async def init_db():
     await init_beanie(database=client.registerdb, document_models=[User])
 
 
+# async def close_db():
+#     client = AsyncIOMotorClient(DB_URL, uuidRepresentation="standard")
+#     client.close()
+
+
+async def get_db():
+    client = AsyncIOMotorClient(DB_URL, uuidRepresentation="standard")
+    return client.registerdb
+
 
