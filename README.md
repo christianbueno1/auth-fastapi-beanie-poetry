@@ -9,6 +9,13 @@
 username: str | None = None
 # old
 username: Optional[str] = None
+
+# dictionary
+user = {
+    "id": 12,
+    "name": 'john',
+    "dob": '1998-01-14'
+}
 ```
 
 ## packages

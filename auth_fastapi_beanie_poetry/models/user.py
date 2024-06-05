@@ -23,3 +23,4 @@ class User(Document):
                 "updated_at": "2021-01-01T00:00:00",
             }
         }
+

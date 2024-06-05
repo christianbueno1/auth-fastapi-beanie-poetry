@@ -7,21 +7,25 @@ from auth_fastapi_beanie_poetry.models.token import TokenData
 from auth_fastapi_beanie_poetry.models.user import User
 from auth_fastapi_beanie_poetry.core.config import core_settings
 from jwt.exceptions import InvalidTokenError
+from auth_fastapi_beanie_poetry.schemas.user import UserInDB
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-async def get_user(username: str) -> User | None:
+async def get_user(username: str) -> UserInDB | None:
     # user = await User.find_one({"username": username})
     user = await User.find_one(User.username == username)
-    return user
+    user_in_db = UserInDB(**user.model_dump())
+    return user_in_db
 
-async def get_user_by_email(email: str) -> User | None:
+async def get_user_by_email(email: str) -> UserInDB | None:
     user = await User.find_one(User.email == email)
-    return user
+    user_in_db = UserInDB(**user.model_dump())
+    return user_in_db
 
 # create_user
 
 # get_current_user
+# username is the sub claim of the JWT token
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -36,14 +40,14 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         token_data = TokenData(username=username)
     except InvalidTokenError:
         raise credentials_exception
-    user = get_user(username=token_data.username)
+    user: UserInDB = get_user(username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
 
 # get_current_active_user
 async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[UserInDB, Depends(get_current_user)],
 ):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
