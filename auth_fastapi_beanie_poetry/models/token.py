@@ -15,10 +15,12 @@ class Token(Document):
 
 class TokenData(Document):
     username: str | None = None
+    email: str | None = None
 
     class Config:
         schema_extra = {
             "example": {
                 "username": "johndoe",
+                "email": "johndoe@ibm.com",
             }
         }

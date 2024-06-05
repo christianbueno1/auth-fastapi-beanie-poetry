@@ -9,3 +9,4 @@ async def authenticate_user(username: str, password: str) -> User | None:
     if not user.verify_password(password):
         return None
     return user
+

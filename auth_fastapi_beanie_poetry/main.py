@@ -1,19 +1,32 @@
 from contextlib import asynccontextmanager
-from os import getenv
-from dotenv import load_dotenv
+# from os import getenv
+# from dotenv import load_dotenv
 from fastapi import FastAPI
-from beanie import init_beanie
-from models.user import User
-import motor.motor_asyncio
+from auth_fastapi_beanie_poetry.db.mongo import init_db
 
-load_dotenv()
+# load_dotenv()
 
-mongo_url = getenv("MONGO_URL")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    client = motor.motor_asyncio.AsyncIOMotorClient(mongo_url)
-    await init_beanie(database=client.mydatabase, document_models=[User])
+    await init_db()
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+
+# @app.on_event("startup")
+# async def start_db():
+#     await init_db()
+
+# from fastapi import FastAPI
+# from app.routes import auth, todo
+
+# app = FastAPI()
+
+# app.include_router(auth.router, prefix="/auth", tags=["auth"])
+# app.include_router(todo.router, prefix="/todos", tags=["todos"])
+
+# @app.get("/")
+# def read_root():
+#     return {"message": "Welcome to the Todo App"}
