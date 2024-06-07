@@ -1,4 +1,13 @@
-## Links
+## Steps
+```
+# on f40 Linux install poetry
+sudo dnf install poetry
+
+# clone the repo
+poetry install
+poetry run python YOUR_SCRIPT_NAME.py
+
+```
 
 ## Prompt
 - Give me an example of structure of files in a python backend web application or REST API, following the best conventions in architecture in microservices, low coupling, high cohesion, SOLID
