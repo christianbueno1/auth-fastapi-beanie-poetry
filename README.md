@@ -15,9 +15,18 @@ poetry run python YOUR_SCRIPT_NAME.py
 ## Notes
 ```
 # new 3.10
+# multiple, or
 username: str | None = None
-# old
+
+# typing
 username: Optional[str] = None
+
+# e.g.2
+def foo(client_id: str) -> list | bool:
+from typing import Union
+def foo(client_id: str) -> Union[list, bool]:
+#
+Optional[...] is a shorthand notation for Union[..., None]
 
 # dictionary
 user = {
