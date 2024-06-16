@@ -25,10 +25,10 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> T
     print(f"User: {user}")
     if not user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
-    access_token: str = create_access_token(data={"sub": user.username}, expires_delta=timedelta(core_settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+    access_token: str = create_access_token(data={"sub": user.username}, expires_delta=timedelta(minutes=core_settings.ACCESS_TOKEN_EXPIRE_MINUTES))
     print(f"Access token: {access_token}")
     # create refresh token
-    refresh_token: str = create_refresh_token(data={"sub": user.username}, expires_delta=timedelta(core_settings.REFRESH_TOKEN_EXPIRE_DAYS))
+    refresh_token: str = create_refresh_token(data={"sub": user.username}, expires_delta=timedelta(days=core_settings.REFRESH_TOKEN_EXPIRE_DAYS))
     # return {"access_token": access_token, "token_type": "bearer"}
     return Token(
         access_token=access_token, 

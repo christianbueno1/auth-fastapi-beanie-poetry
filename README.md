@@ -106,3 +106,12 @@ poetry add --dev pytest
 # create the container db
 podman pull mongo:
 ```
+
+## Token
+- The default lifetime for the refresh tokens is 24 hours for single page apps and 90 days for all other scenarios.
+- The access token in JWT usually expires in 10-60 minutes, this is configured in the backend side. 
+- Refresh tokens should be valid for at least 7 days (ideally 90-365 days). 
+- Authentication is implemented through JWT access tokens along with refresh tokens. The API returns a short-lived token (JWT), which expires in 15 minutes, and in HTTP cookies, the refresh token expires in 7 days.
+- With this setup, the JWT's expiration duration is set to something short (5-10 minutes) and the refresh token is set to something long (2 weeks or 2 months), link2.
+- [link1, refresh-tokens-jwt-interaction](https://www.loginradius.com/blog/identity/refresh-tokens-jwt-interaction/)
+- [link2, revoking-jwts](https://fusionauth.io/articles/tokens/revoking-jwts)
