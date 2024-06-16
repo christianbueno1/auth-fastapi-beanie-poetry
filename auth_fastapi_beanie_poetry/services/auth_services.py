@@ -15,15 +15,14 @@ from auth_fastapi_beanie_poetry.schemas.user import UserCreate, UserInDB
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 async def authenticate_user(username: str, password: str) -> UserInDB | bool:
-    user: UserModel = await get_user(username)
+    user: UserInDB = await get_user(username)
     # user_in_db = UserInDB(**user.model_dump())
     # if user is None:
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
         return False
-    user_in_db = UserInDB(**user)
-    return user_in_db
+    return user
 
 # get_current_user get_current_active_user
 
@@ -57,7 +56,7 @@ async def get_current_active_user(
     return current_user
 
 # create_user
-async def create_user(user: UserCreate) -> User:
+async def create_user(user: UserCreate) -> UserInDB:
     hashedd_password = get_password_hash(user.password)
 
-    return await User(**user.create())
+    return await UserInDB(**user.create())

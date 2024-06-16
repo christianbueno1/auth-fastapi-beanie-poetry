@@ -4,8 +4,10 @@
 sudo dnf install poetry
 
 # clone the repo
+# create the db or run the container db
 poetry install
 # run
+poetry run <command>
 poetry run python YOUR_SCRIPT_NAME.py
 
 poetry add uvicorn -G dev
@@ -22,6 +24,9 @@ poetry run uvicorn auth_fastapi_beanie_poetry.main:app --reload
 poetry shell
 uvicorn auth_fastapi_beanie_poetry.main:app --reload
 
+
+# uvicorn command
+uvicorn auth_fastapi_beanie_poetry.main:app --reload
 ```
 
 ## Prompt
@@ -74,6 +79,7 @@ DB_NAME=registerdb
 SECRET_KEY = "83daa0256a2289b0fb23693bf1f6034d44396675749244721a2b20e896e11662"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS=1
 FRONTEND_URL = "http://localhost:5173"
 ```
 

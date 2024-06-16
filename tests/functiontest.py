@@ -39,7 +39,7 @@ async def init_db():
     await init_beanie(database=database, document_models=[User])
     
     # create a User object
-    # user = UserCreate(username="tom", email="tom@ibm.com", password="password")
+    # user: UserCreate = UserCreate(username="tom", email="tom@ibm.com", password="password")
     # print(f"User: {user}")
     # hashed_password = pwd_context.hash(user.password)
     # user_in_db = User(username=user.username, email=user.email, hashed_password=hashed_password)

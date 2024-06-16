@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from auth_fastapi_beanie_poetry.core.token import create_access_token, create_refresh_token
-from auth_fastapi_beanie_poetry.schemas.user import User, UserCreate
+from auth_fastapi_beanie_poetry.schemas.user import User, UserCreate, UserInDB
 # from auth_fastapi_beanie_poetry.services.auth_services import authenticate_user
 from auth_fastapi_beanie_poetry.services import auth_services
 from auth_fastapi_beanie_poetry.models.token import Token
@@ -46,5 +46,11 @@ async def read_own_items(current_user: Annotated[User, Depends(auth_services.get
 # register endpoints
 @router.post("/signup")
 async def signup(user: UserCreate):
-    user: User = await auth_services.create_user(user)
+    try :
+        user: UserInDB = await auth_services.create_user(user)
+        user_in_db = User(**user.model_dump())
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=400, detail="User already exists")
+
     return {"message": "User created"}
