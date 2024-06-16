@@ -1,19 +1,19 @@
-from beanie import Document
+from pydantic import BaseModel
 
 
-class Token(Document):
+class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
 
     class Config:
         schema_extra = {
             "example": {
-                "access_token": "eyJ123",
                 "token_type": "bearer",
             }
         }
 
-class TokenData(Document):
+class TokenData(BaseModel):
     username: str | None = None
     email: str | None = None
 

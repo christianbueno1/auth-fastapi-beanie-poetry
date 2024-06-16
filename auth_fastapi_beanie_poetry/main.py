@@ -1,11 +1,7 @@
 from contextlib import asynccontextmanager
-# from os import getenv
-# from dotenv import load_dotenv
 from fastapi import FastAPI
 from auth_fastapi_beanie_poetry.db.mongo import init_db
-
-# load_dotenv()
-
+from auth_fastapi_beanie_poetry.api.v1.endpoints.auth import router as auth_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,3 +26,5 @@ app = FastAPI(lifespan=lifespan)
 # @app.get("/")
 # def read_root():
 #     return {"message": "Welcome to the Todo App"}
+
+app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])

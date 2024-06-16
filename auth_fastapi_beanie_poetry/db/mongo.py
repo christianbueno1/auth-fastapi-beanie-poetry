@@ -6,7 +6,8 @@ from auth_fastapi_beanie_poetry.core.config import core_settings
 
 async def init_db():
     client = AsyncIOMotorClient(core_settings.DATABASE_URL, uuidRepresentation="standard")
-    await init_beanie(database=client.registerdb, document_models=[User])
+    database= client[core_settings.DATABASE_NAME]
+    await init_beanie(database=database, document_models=[User])
 
 
 # async def close_db():

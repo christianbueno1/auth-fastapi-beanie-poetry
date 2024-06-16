@@ -5,7 +5,22 @@ sudo dnf install poetry
 
 # clone the repo
 poetry install
+# run
 poetry run python YOUR_SCRIPT_NAME.py
+
+poetry add uvicorn -G dev
+
+# add in toml
+#[tool.poetry.scripts]
+#start = "auth_fastapi_beanie_poetry.main:start"
+#poetry run start
+
+# use underscore
+poetry run uvicorn auth_fastapi_beanie_poetry.main:app --reload
+
+# or
+poetry shell
+uvicorn auth_fastapi_beanie_poetry.main:app --reload
 
 ```
 
@@ -78,4 +93,10 @@ poetry add beanie
 # dev dep
 poetry add --dev pytest
 
+```
+
+## Database
+```
+# create the container db
+podman pull mongo:
 ```
