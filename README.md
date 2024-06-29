@@ -27,6 +27,11 @@ uvicorn auth_fastapi_beanie_poetry.main:app --reload
 
 # uvicorn command
 uvicorn auth_fastapi_beanie_poetry.main:app --reload
+
+# generate secret key
+openssl rand -hex 32
+
+
 ```
 
 ## Prompt
@@ -96,8 +101,34 @@ poetry shell
 poetry add flask
 poetry add beanie
 
-# dev dep
+# dev dep, deprecated, use -G dev
 poetry add --dev pytest
+
+# remove
+poetry remove pytest -G dev
+
+# general config
+poetry config --list
+
+# list all virt env
+poetry env list
+poetry env list --full-path
+
+poetry env info
+poetry env use system
+poetry env use python3.7
+poetry env use 3.7
+poetry env info --path
+
+poetry env remove /full/path/to/python
+poetry env remove python3.7
+poetry env remove 3.7
+poetry env remove test-O3eWbxRl-py3.7
+
+
+# decativate
+deactivate
+
 
 ```
 

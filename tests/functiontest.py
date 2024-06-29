@@ -6,6 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import asyncio
 from auth_fastapi_beanie_poetry.models.user import User
 from auth_fastapi_beanie_poetry.schemas.user import UserCreate
+from beanie.exceptions import DocumentNotFound
 
 # Define the payload
 def test1():
@@ -48,16 +49,70 @@ async def init_db():
     # find the user
     # user = await User.find_one(User.username == "tom")
     user = await User.get("66665ed8eec9d71c757d57d8")
-    print(f"User: {user} Type: {type(user)}")
-    print("Searching for user")
+    if user:
+        print(f"User: {user} Type: {type(user)}")
+        print("Searching for user")
 
-    # delete
-    await user.delete()
-    print("User deleted")
+        # delete
+        await user.delete()
+        print("User deleted")
+    else:
+        print(f"User doesn't exists")
+    
+    # update
+    user = await User.find_one(User.email == "pam@foo.xyz")
+    if user:
+        user.email = 'bob@bar.xyz'
+        await user.save()
+        print('user updated successfully')
+    else:
+        hashed_password = pwd_context.hash('123pam')
+        new_user = User(username='Pam', email='pam@foo.xyz', hashed_password=hashed_password)
+        await new_user.save()
+        print('New user created successfully')
+    
+    user = await User.find_one(User.email == "bob@foo.xyz")
+    if user:
+        user.email = 'bob@bar.xyz'
+        try:
+            await user.replace()
+        except ValueError:
+            print("The document does not have an id yet.")
+        except DocumentNotFound:
+            print("The document with the given id does not exist in the collection")
 
+    
+    await User.find_one(User.email == "jerry@foo.xyz").set({User.email: "iamjerry@foo.xyz"})
+
+def spread_operator():
+    numbers = [1,2,3]
+    fruits = ['apple','banana','grape']
+    more_fruits = ['kiwi','coconut','cherry','peach']
+    combined_fruits = [*fruits, *more_fruits]
+    data1 = {
+        'name': "christian",
+        'email': "chris@ibm.com"
+    }
+    data2 = {
+        "token": "123",
+        "token_type": "bearer"
+    }
+    # print(f"{numbers}\n{*numbers}")
+    print(f"numbers: {numbers}")
+    print(*numbers)
+    print(f"combined_fruits: {combined_fruits}")
+    print({**data1, **data2})
+    fruit1, *rest_fruit = more_fruits
+    print(f"fruit1: {fruit1} and rest_fruit: {rest_fruit}")
+    starred1 = fruits, *more_fruits
+    print(f"starred1: {starred1}, type {type(starred1)}")
+    *st2, st3 = fruits, *more_fruits
+    print(f"st2: {st2} type: {type(st2)}\nst3: {st3}")
+    # print(f"st2: {st2}")
 
 if __name__ == "__main__":
     # test1()
     asyncio.run(init_db())
     print("Database initialized")
+    # spread_operator()
     
