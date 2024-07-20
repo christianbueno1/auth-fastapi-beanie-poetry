@@ -1,7 +1,7 @@
 POST http://localhost:8000/api/v1/auth/token
 Content-Type: application/x-www-form-urlencoded
 
-username=tom
+username=tom@ibm.com
 &password=password
 
 ###
@@ -13,8 +13,8 @@ username=Pam
 
 ###
 POST http://localhost:8000/api/v1/auth/refresh-token
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJQYW0iLCJleHAiOjE3MjAyNDY4OTEsIm1vZGUiOiJyZWZyZXNoX3Rva2VuIn0.5deraU2xwcUCjYg-MS_b5rNaywyrD2GkkTaqj9fdyZM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJQYW0iLCJleHAiOjE3MjA2NzE3NzksIm1vZGUiOiJyZWZyZXNoX3Rva2VuIn0.txrMXELOk9HjofhhYf0winnTqv4yUeyg9-cIFQOrQSY
 
 ###
 GET http://localhost:8000/api/v1/auth/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJQYW0iLCJleHAiOjE3MTk2NDIxODEsIm1vZGUiOiJhY2Nlc3NfdG9rZW4ifQ.R0-8MRdOVRoY0qxqbQ1xeRXCmhrkc5VSLN86nG6pbx4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJQYW0iLCJleHAiOjE3MjAwNjcxNTQsIm1vZGUiOiJhY2Nlc3NfdG9rZW4ifQ.0hFwhu_FScN0TREJVpwTKhZ4af-B-0TBqIQNziihlmc

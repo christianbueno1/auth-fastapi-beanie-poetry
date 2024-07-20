@@ -1,9 +1,13 @@
-from beanie import init_beanie
+from datetime import datetime, timedelta, timezone
+from enum import Enum
+from beanie import Document, init_beanie
 from passlib.context import CryptContext
-import jwt #pyjwt
+import jwt
+from pydantic import BaseModel #pyjwt
 from auth_fastapi_beanie_poetry.core.config import core_settings
 from motor.motor_asyncio import AsyncIOMotorClient
 import asyncio
+from auth_fastapi_beanie_poetry.models.token import TokenMode, TokenPayload
 from auth_fastapi_beanie_poetry.models.user import User
 from auth_fastapi_beanie_poetry.schemas.user import UserCreate
 from beanie.exceptions import DocumentNotFound
@@ -110,9 +114,54 @@ def spread_operator():
     print(f"st2: {st2} type: {type(st2)}\nst3: {st3}")
     # print(f"st2: {st2}")
 
+def test2_enum():
+    class Role(str, Enum):
+        ADMIN = "admin"
+        USER = "user"
+        GUEST = "guest"
+
+    print(f"ADMIN: {Role.ADMIN}, value: {Role.ADMIN.value}")
+    print(f"USER: {Role.USER}")
+    print(f"GUEST: {Role.GUEST}")
+    # user_role = Role.USER
+    # user_role = Role.GUEST
+    user_role = Role.ADMIN
+    if user_role == Role.USER:
+        print(f"user_role: {user_role}")
+    elif user_role == Role.ADMIN:
+        print(f"user_role: {user_role}")
+    elif user_role == Role.GUEST:
+        print(f"user_role: {user_role}")
+        
+def test3_dict():
+    data = {
+        'name': "christian",
+        'email': "chris@ibm.com"
+    }
+    print(f"data: {data}")
+    print(f"data['name']: {data['name']}, datatype: {type(data['name'])}")
+    print(f"data['email']: {data['email']}, datatype: {type(data['email'])}")
+    today = datetime.now(timezone.utc)
+    print(f"today: {today}")
+    # add one minute
+    tomorrow = today + timedelta(minutes=1)
+    # use exp
+    data.update({"token": "123", "token_type": "bearer", "exp": tomorrow})
+    data.update({"custom_date": tomorrow.strftime("%Y-%m-%dT%H:%M:%SZ")})
+    print(f"data: {data}")
+    print(f"data['exp']: {data['exp']}, datatype: {type(data['exp'])}")
+    print(f"data['token']: {data['token']}, datatype: {type(data['token'])}")
+    print(f"data['token_type']: {data['token_type']}, datatype: {type(data['token_type'])}")
+    encoded_jwt: str = jwt.encode(data, core_settings.SECRET_KEY, algorithm=core_settings.ALGORITHM)
+    print(f"encoded_jwt: {encoded_jwt}, datatype: {type(encoded_jwt)}")
+
+    dog = TokenPayload(sub="123", exp=tomorrow, mode=TokenMode.access_token)
+
 if __name__ == "__main__":
     # test1()
-    asyncio.run(init_db())
-    print("Database initialized")
+    # asyncio.run(init_db())
+    # print("Database initialized")
     # spread_operator()
+    # test2_enum()
+    test3_dict()
     

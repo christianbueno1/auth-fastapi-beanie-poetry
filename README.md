@@ -3,12 +3,16 @@
 # on f40 Linux install poetry
 sudo dnf install poetry
 
+
 # clone the repo
 # create the db or run the container db
 poetry install
 # run
 poetry run <command>
 poetry run python YOUR_SCRIPT_NAME.py
+# 
+# run a python file
+poetry run python tests/functiontest.py
 
 poetry add uvicorn -G dev
 
@@ -17,8 +21,12 @@ poetry add uvicorn -G dev
 #start = "auth_fastapi_beanie_poetry.main:start"
 #poetry run start
 
+
+# run the app
 # use underscore
 poetry run uvicorn auth_fastapi_beanie_poetry.main:app --reload
+
+
 
 # or
 poetry shell
@@ -60,6 +68,9 @@ user = {
     "dob": '1998-01-14'
 }
 ```
+- Use the email with OAuth2PasswordRequestForm` instead of username.
+- json.dumps in jwt.encode, TokenPayload
+- the key value in data dict must be 'exp' for use in jwt.encode
 
 ## packages
 ```
@@ -135,7 +146,18 @@ deactivate
 ## Database
 ```
 # create the container db
-podman pull mongo:
+podman pull docker.io/library/mongodb-community-server:latest
+
+#
+podman run -d --name auth -e MONGO_INITDB_ROOT_USERNAME=chris -e MONGO_INITDB_ROOT_PASSWORD='maGazine1!' -p 27017:27017 mongodb-community-server:latest
+
+```
+
+## Test
+```
+
+username=tom@ibm.com
+&password=password
 ```
 
 ## Token

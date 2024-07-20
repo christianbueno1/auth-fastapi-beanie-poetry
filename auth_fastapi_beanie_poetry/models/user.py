@@ -1,8 +1,13 @@
 from datetime import datetime
+from enum import Enum
 from beanie import Document
 from pydantic import Field
 from auth_fastapi_beanie_poetry.models.token import Token, TokenData
 
+class Role(str, Enum):
+    ADMIN = "admin"
+    USER = "user"
+    GUEST = "guest"
 
 class User(Document):
     username: str
@@ -13,7 +18,7 @@ class User(Document):
     disabled: bool | None = None
     token: Token | None = None
     token_data: TokenData | None = None
-    # role: str | None = None # user, admin, superadmin
+    role: Role = Role.USER
 
     class Settings:
         collection = "users"
@@ -26,6 +31,10 @@ class User(Document):
                 "hashed_password": "password",
                 "created_at": "2021-01-01T00:00:00",
                 "updated_at": "2021-01-01T00:00:00",
+                "disables": False,
+                "token": None,
+                "token_data": None,
+                "role": "Role.USER"
             }
         }
 
