@@ -8,7 +8,7 @@ from auth_fastapi_beanie_poetry.core.config import core_settings
 from motor.motor_asyncio import AsyncIOMotorClient
 import asyncio
 from auth_fastapi_beanie_poetry.models.token import TokenMode, TokenPayload
-from auth_fastapi_beanie_poetry.models.user import User
+from auth_fastapi_beanie_poetry.models.user import Role, User
 from auth_fastapi_beanie_poetry.schemas.user import UserCreate
 from beanie.exceptions import DocumentNotFound
 
@@ -64,29 +64,44 @@ async def init_db():
         print(f"User doesn't exists")
     
     # update
-    user = await User.find_one(User.email == "pam@foo.xyz")
-    if user:
-        user.email = 'bob@bar.xyz'
-        await user.save()
-        print('user updated successfully')
-    else:
-        hashed_password = pwd_context.hash('123pam')
-        new_user = User(username='Pam', email='pam@foo.xyz', hashed_password=hashed_password)
-        await new_user.save()
-        print('New user created successfully')
+    # user = await User.find_one(User.email == "pam@foo.xyz")
+    # if user:
+    #     user.email = 'bob@bar.xyz'
+    #     await user.save()
+    #     print('user updated successfully')
+    # else:
+    #     hashed_password = pwd_context.hash('123pam')
+    #     new_user = User(username='Pam', email='pam@foo.xyz', hashed_password=hashed_password)
+    #     await new_user.save()
+    #     print('New user created successfully')
     
-    user = await User.find_one(User.email == "bob@foo.xyz")
-    if user:
-        user.email = 'bob@bar.xyz'
-        try:
-            await user.replace()
-        except ValueError:
-            print("The document does not have an id yet.")
-        except DocumentNotFound:
-            print("The document with the given id does not exist in the collection")
+    # user = await User.find_one(User.email == "bob@foo.xyz")
+    # if user:
+    #     user.email = 'bob@bar.xyz'
+    #     try:
+    #         await user.replace()
+    #     except ValueError:
+    #         print("The document does not have an id yet.")
+    #     except DocumentNotFound:
+    #         print("The document with the given id does not exist in the collection")
 
-    
-    await User.find_one(User.email == "jerry@foo.xyz").set({User.email: "iamjerry@foo.xyz"})
+    # update    
+    # await User.find_one(User.email == "jerry@foo.xyz").set({User.email: "iamjerry@foo.xyz"})
+
+    # create user
+    new_user = {
+        "username": "tom",
+        "email": "tom@foo.xyz",
+        "password": "tom123",
+        "role": Role.USER
+    }
+    new_user = UserCreate(**new_user)
+    hashed_password = pwd_context.hash(new_user.password)
+    new_user = User(username=new_user.username, email=new_user.email, hashed_password=hashed_password)
+    await new_user.save()
+    print(new_user)
+    print('New user created successfully')
+
 
 def spread_operator():
     numbers = [1,2,3]
@@ -157,11 +172,13 @@ def test3_dict():
 
     dog = TokenPayload(sub="123", exp=tomorrow, mode=TokenMode.access_token)
 
+
 if __name__ == "__main__":
     # test1()
-    # asyncio.run(init_db())
-    # print("Database initialized")
+    asyncio.run(init_db())
+    print("Database initialized")
+
     # spread_operator()
     # test2_enum()
-    test3_dict()
+    # test3_dict()
     

@@ -70,7 +70,7 @@ user = {
 ```
 - Use the email with OAuth2PasswordRequestForm` instead of username.
 - json.dumps in jwt.encode, TokenPayload
-- the key value in data dict must be 'exp' for use in jwt.encode
+- the key value in data dict must be 'exp' for use in jwt.encode [https://github.com/jpadilla/pyjwt/issues/853](https://github.com/jpadilla/pyjwt/issues/853)
 
 ## packages
 ```
@@ -155,9 +155,9 @@ podman run -d --name auth -e MONGO_INITDB_ROOT_USERNAME=chris -e MONGO_INITDB_RO
 
 ## Test
 ```
+tom123
+tim123
 
-username=tom@ibm.com
-&password=password
 ```
 
 ## Token

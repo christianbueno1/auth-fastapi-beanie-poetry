@@ -109,12 +109,17 @@ async def refresh_token(token: Annotated[str, Depends(oauth2_scheme)]):
         else:
             if token != user_in_db.token.refresh_token:
                 raise credentials_exception
-        data = { "sub": user_in_db.email, 'expire': None, 'mode': None }
-        data: TokenData = TokenData(**data)
+        data = TokenPayload(sub=user_in_db.email, exp=None, mode=None)
+        # data: TokenPayload = { "sub": user_in_db.email, 'exp': None, 'mode': None }
+
         refresh_token = create_refresh_token(data=data, expires_delta=timedelta(days=core_settings.REFRESH_TOKEN_EXPIRE_DAYS))
+        
         await UserModel.find_one(UserModel.email == user_in_db.email).set({UserModel.token.refresh_token: refresh_token})
+        
         access_token = create_access_token(data=data, expires_delta=timedelta(minutes=core_settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+        
         new_token: Token = Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
+        
     except InvalidTokenError:
         raise credentials_exception
     return {

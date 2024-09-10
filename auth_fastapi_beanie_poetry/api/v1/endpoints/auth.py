@@ -30,7 +30,8 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> J
     if not user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
     # sub, exp, mode
-    data: TokenPayload = {"sub": user.email, "expire": None, "mode": None}
+    data = TokenPayload(sub=user.email, exp=None, mode=None)
+    # data: TokenPayload = {"sub": user.email, "exp": None, "mode": None}
     access_token: str = create_access_token(data=data, expires_delta=timedelta(minutes=core_settings.ACCESS_TOKEN_EXPIRE_MINUTES))
     # print(f"Access token: {access_token}")
     # create refresh token
