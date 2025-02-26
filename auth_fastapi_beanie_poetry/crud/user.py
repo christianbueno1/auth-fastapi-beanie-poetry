@@ -8,6 +8,7 @@ async def get_user(username: str) -> UserInDB | None:
         if user:
             user_in_db = UserInDB(**user.model_dump())
             return user_in_db
+        return user
     except AttributeError:
         print("User not found")
         return None
@@ -18,8 +19,7 @@ async def get_user_by_email(email: str) -> UserInDB | None:
         if user:
             user_in_db = UserInDB(**user.model_dump())
             return user_in_db
+        return user
     except AttributeError:
         print("User not found")
         return None
-
-

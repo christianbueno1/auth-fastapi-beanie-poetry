@@ -6,13 +6,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.encoders import jsonable_encoder
 from auth_fastapi_beanie_poetry.core.token import create_access_token, create_refresh_token
 from auth_fastapi_beanie_poetry.schemas.user import User, UserCreate, UserInDB
-# from auth_fastapi_beanie_poetry.services.auth_services import authenticate_user
 from auth_fastapi_beanie_poetry.services import auth_services
 from auth_fastapi_beanie_poetry.models.token import Token, TokenData, TokenPayload
 from auth_fastapi_beanie_poetry.models.user import Role, User as UserModel
 from auth_fastapi_beanie_poetry.core.config import core_settings
-# from app.schemas.user import UserCreate
-# from app.services.auth_service import create_user, authenticate_user
 
 router = APIRouter()
 
@@ -25,11 +22,12 @@ router = APIRouter()
 @router.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> JSONResponse:
     form_identifier = form_data.username
-    user = await auth_services.authenticate_user_by_email(form_identifier, form_data.password)
-    if not user:
-        user = await auth_services.authenticate_user(form_identifier, form_data.password)
-    if not user:
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+    form_password = form_data.password
+    try:
+        user = await auth_services.authenticate_user_or_email(form_identifier, form_password)
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    ####
     # sub, exp, mode
     data = TokenPayload(sub=user.email, exp=None, mode=None)
     print(f"access_token_expires: {core_settings.ACCESS_TOKEN_EXPIRE_MINUTES}")

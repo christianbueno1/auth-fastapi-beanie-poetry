@@ -14,26 +14,50 @@ from auth_fastapi_beanie_poetry.core.token import create_refresh_token, create_a
 from jwt.exceptions import InvalidTokenError
 
 from auth_fastapi_beanie_poetry.schemas.user import UserCreate, UserInDB
-from pymongo.errors import DuplicateKeyError  # Update this import
+from pymongo.errors import DuplicateKeyError
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-async def authenticate_user(username: str, password: str) -> UserInDB | bool:
+async def authenticate_user(username: str, password: str) -> UserInDB:
     user: UserInDB = await get_user(username)
     if not user:
-        return False
+        raise HTTPException(status_code=400, detail="Invalid username")
     if not verify_password(password, user.hashed_password):
-        return False
+        raise HTTPException(status_code=400, detail="Valid username but Invalid password")
     return user
 
-async def authenticate_user_by_email(email: str, password: str) -> UserInDB | bool:
+async def authenticate_user_by_email(email: str, password: str) -> UserInDB:
     user: UserInDB = await get_user_by_email(email)
     if not user:
-        return False
+        raise HTTPException(status_code=400, detail="Invalid email")
     if not verify_password(password, user.hashed_password):
-        return False
+        raise HTTPException(status_code=400, detail="Valid email but Invalid password")
     return user
 
+async def authenticate_user_or_email(identifier: str, password: str) -> UserInDB:
+    try:
+        user: UserInDB = await authenticate_user_by_email(identifier, password)
+        return user
+    except HTTPException as e:
+        if e.detail == "Invalid email":
+            try:
+                user: UserInDB = await authenticate_user(identifier, password)
+                return user
+            except HTTPException as e:
+                if e.detail == "Invalid username":
+                    raise HTTPException(status_code=400, detail="Invalid email or username")
+                elif e.detail == "Valid username but Invalid password":
+                    raise e
+                else:
+                    raise e
+        else:
+            raise e
+
+    
+    
+    
+########################################
 # get_current_user get_current_active_user
 #
 # get_current_user
