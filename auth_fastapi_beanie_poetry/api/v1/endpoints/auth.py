@@ -24,24 +24,20 @@ router = APIRouter()
 
 @router.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> JSONResponse:
-    form_email = form_data.username
-    user = await auth_services.authenticate_user_by_email(email=form_email, password=form_data.password)
-    # print(f"User: {user}")
+    form_identifier = form_data.username
+    user = await auth_services.authenticate_user_by_email(form_identifier, form_data.password)
+    if not user:
+        user = await auth_services.authenticate_user(form_identifier, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
     # sub, exp, mode
     data = TokenPayload(sub=user.email, exp=None, mode=None)
-    # data: TokenPayload = {"sub": user.email, "exp": None, "mode": None}
+    print(f"access_token_expires: {core_settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
     access_token: str = create_access_token(data=data, expires_delta=timedelta(minutes=core_settings.ACCESS_TOKEN_EXPIRE_MINUTES))
-    # print(f"Access token: {access_token}")
-    # create refresh token
-    # sub, exp, mode
     refresh_token: str = create_refresh_token(data=data, expires_delta=timedelta(days=core_settings.REFRESH_TOKEN_EXPIRE_DAYS))
-    # return {"access_token": access_token, "token_type": "bearer"}
     token = Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
     token_data = TokenData(username=user.username, email=user.email)
-    # store in User collection
-    user_model = await UserModel.find_one(UserModel.email == user.email).set({UserModel.token: token, UserModel.token_data: token_data, UserModel.role: Role.USER})
+    await UserModel.find_one(UserModel.email == user.email).set({UserModel.token: token, UserModel.token_data: token_data, UserModel.role: Role.USER})
     return {
         "message": 'Login successful',
         **jsonable_encoder(token),
@@ -52,15 +48,17 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> J
 async def refresh_token(token: Annotated[str, Depends(auth_services.refresh_token)]):
     return token
 
-#register a new user
+# /users (protected) - For admins to manage users
+# Only admin users can access this endpoint and create users with specific roles: admin, user, guest
+# The first admin user would typically be created directly in the database or through a separate initialization process
 @router.post("/users", response_model=User)
-async def create_user(user: UserCreate):
-    try :
+async def create_user(user: UserCreate, current_user: Annotated[User, Depends(auth_services.check_admin_role)]):
+    try:
         user: UserInDB = await auth_services.create_user(user)
         user_in_db = User(**user.model_dump())
     except Exception as e:
         print(f"Error: {e}")
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(status_code=400, detail="Error in create_user")
     return user_in_db
 
 @router.get("/users/me", response_model=User)
@@ -71,14 +69,29 @@ async def read_users_me(current_user: Annotated[User, Depends(auth_services.chec
 async def read_own_items(current_user: Annotated[User, Depends(auth_services.check_user_role)]):
     return [{"item_id": "Foo", "ownert": current_user.username}]
 
-# register endpoints
+# /signup (public) - For new users to self-register
+# Be publicly accessible (no token required)
+# Automatically assign the basic user role
 @router.post("/signup")
 async def signup(user: UserCreate):
-    try :
-        user: UserInDB = await auth_services.create_user(user)
-        user_in_db = User(**user.model_dump())
+    try:
+        # Force user role to USER
+        user_dict = user.model_dump()
+        user_dict["role"] = Role.USER
+        user_create = UserCreate(**user_dict)
+        user_in_db: UserInDB = await auth_services.create_user(user_create)
+        user = User(**user_in_db.model_dump())
+    except HTTPException as e:
+        print(f"Error: {e.detail}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         print(f"Error: {e}")
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(status_code=400, detail="Error creating user or User already exists")
 
-    return {"message": "User created"}
+    return {"message": "User created successfully", "user": user}
+
+@router.post("/clear-tokens")
+async def clear_tokens():
+    result = await auth_services.clear_all_tokens()
+    print(f"Result: {result}")
+    return {"message": "Tokens cleared", "modified_count": result.modified_count}

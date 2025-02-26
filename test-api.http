@@ -1,20 +1,72 @@
 POST http://localhost:8000/api/v1/auth/token
 Content-Type: application/x-www-form-urlencoded
 
-username=tom@foo.xyz
-&password=tom123
+username=chris@ibm.com
+&password=chris123
 
 ###
 POST http://localhost:8000/api/v1/auth/token
 Content-Type: application/x-www-form-urlencoded
 
-username=tim@foo.xyz
+username=tim122@ibm.com
 &password=tim123
 
 ###
+POST http://localhost:8000/api/v1/auth/token
+Content-Type: application/x-www-form-urlencoded
+
+username=pam@ibm.com
+&password=pam123
+
+###
 POST http://localhost:8000/api/v1/auth/refresh-token
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0aW1AZm9vLnh5eiIsImV4cCI6MTcyMjEwOTcwMywibW9kZSI6InJlZnJlc2hfdG9rZW4ifQ.MTnLO0KuEbW-DScqmZb-ppT0-8fUC_9qnB6d5qJ90Dw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjaHJpc0BpYm0uY29tIiwiZXhwIjoxNzQwNDYxMjQwLCJtb2RlIjoicmVmcmVzaF90b2tlbiJ9.vlvWUnHAQM3DA3LnDh_dWpEGcC2yEX_W2GSEVfrQxh0
 
 ###
 GET http://localhost:8000/api/v1/auth/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0aW1AZm9vLnh5eiIsImV4cCI6MTcyMTUxMDEwMCwibW9kZSI6ImFjY2Vzc190b2tlbiJ9.xGBIW4J2lK7TezjTtG-oJaEFuPknAnZcxKWa4VvvqbA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjaHJpc0BpYm0uY29tIiwiZXhwIjoxNzQwMzc1NDc4LCJtb2RlIjoiYWNjZXNzX3Rva2VuIn0.Q_4umIqeRqhGTcOKpbg6KupjoYgyKD-AvXcbQ-Lcv44
+
+###
+# register a new user
+POST http://localhost:8000/api/v1/auth/users
+Content-Type: application/json
+
+{
+    "username": "chris123",
+    "email": "chris@ibm.com",
+    "password": "chris123",
+    "disabled": false,
+    "role": "user"
+}
+
+###
+# register a new user
+POST http://localhost:8000/api/v1/auth/users
+# POST http://localhost:8000/api/v1/auth/signup
+Content-Type: application/json
+
+{
+    "username": "tim123",
+    "email": "tim@foo.xyz",
+    "password": "tim123",
+    "disabled": false,
+    "role": "user"
+}
+
+###
+# clear-tokens
+POST http://localhost:8000/api/v1/auth/clear-tokens
+Authorization
+
+###
+# signup, self-register
+POST http://localhost:8000/api/v1/auth/signup
+Content-Type: application/json
+
+{
+    "username": "bruce123",
+    "email": "bruce123@ibm.com",
+    "password": "hello1!A",
+    "disabled": false,
+    "role": "user"
+}

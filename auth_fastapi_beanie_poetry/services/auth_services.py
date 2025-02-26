@@ -14,13 +14,12 @@ from auth_fastapi_beanie_poetry.core.token import create_refresh_token, create_a
 from jwt.exceptions import InvalidTokenError
 
 from auth_fastapi_beanie_poetry.schemas.user import UserCreate, UserInDB
+from pymongo.errors import DuplicateKeyError  # Update this import
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 async def authenticate_user(username: str, password: str) -> UserInDB | bool:
     user: UserInDB = await get_user(username)
-    # user_in_db = UserInDB(**user.model_dump())
-    # if user is None:
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -47,16 +46,20 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        print(f"token: {token}")
+        print(f"access_token_expires: {core_settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
         payload: TokenPayload = jwt.decode(token, core_settings.SECRET_KEY, algorithms=[core_settings.ALGORITHM])
+        print(f"payload: {payload}")
         email: str = payload.get("sub")
-        # print(f"email: {email}")
+        print(f"email: {email}")
         mode: TokenMode = payload.get("mode")
-        # print(f"mode: {mode}")
+        print(f"mode: {mode}")
         if email is None:
             raise credentials_exception
         if mode != TokenMode.access_token:
             raise credentials_exception
         token_data = TokenData(email=email)
+        print(f"token_data: {token_data}")
     except InvalidTokenError:
         raise credentials_exception
     user: UserInDB = await get_user_by_email(email=token_data.email)
@@ -128,6 +131,36 @@ async def refresh_token(token: Annotated[str, Depends(oauth2_scheme)]):
 
 # create_user
 async def create_user(user: UserCreate) -> UserInDB:
-    hashedd_password = get_password_hash(user.password)
+    try:
+        hashed_password = get_password_hash(user.password)
+        new_user = UserModel(**user.model_dump(), hashed_password=hashed_password)
+        await new_user.insert()
+        return new_user
+    except DuplicateKeyError as e:
+        if "username" in str(e):
+            raise HTTPException(
+                status_code=400, 
+                detail="User with this username already exists"
+            )
+        elif "email" in str(e):
+            raise HTTPException(
+                status_code=400, 
+                detail="User with this email already exists"
+            )
+        else:
+            raise HTTPException(
+                status_code=400, 
+                detail="User with this username or email already exists"
+            )
+    
+    
 
-    return await UserInDB(**user.create())
+async def clear_all_tokens():
+    # Clear tokens for all users by updating the token and token_data fields to None.
+    update_result = await UserModel.find_all().update({
+        "$set": {
+            "token": None,
+            "token_data": None
+        }
+    })
+    return update_result
