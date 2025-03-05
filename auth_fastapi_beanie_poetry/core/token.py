@@ -12,7 +12,7 @@ def create_access_token(data: TokenPayload, expires_delta: timedelta | None = No
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     data["exp"] = expire
     data["mode"] = TokenMode.access_token
-    encoded_jwt: str = jwt.encode(data, core_settings.SECRET_KEY, algorithm=core_settings.ALGORITHM)
+    encoded_jwt: str = jwt.encode(data, core_settings.JWT_SECRET, algorithm=core_settings.JWT_ALGORITHM)
     
     return encoded_jwt
 
@@ -23,6 +23,6 @@ def create_refresh_token(data: TokenPayload, expires_delta: timedelta | None = N
         expire = datetime.now(timezone.utc) + timedelta(days=7)
     data["exp"] = expire
     data["mode"] = TokenMode.refresh_token
-    encoded_jwt: str = jwt.encode(data, core_settings.SECRET_KEY, algorithm=core_settings.ALGORITHM)
+    encoded_jwt: str = jwt.encode(data, core_settings.JWT_SECRET, algorithm=core_settings.JWT_ALGORITHM)
     
     return encoded_jwt

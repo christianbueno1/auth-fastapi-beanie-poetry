@@ -72,7 +72,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
     try:
         print(f"token: {token}")
         print(f"access_token_expires: {core_settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
-        payload: TokenPayload = jwt.decode(token, core_settings.SECRET_KEY, algorithms=[core_settings.ALGORITHM])
+        payload: TokenPayload = jwt.decode(token, core_settings.JWT_SECRET, algorithms=[core_settings.JWT_ALGORITHM])
         print(f"payload: {payload}")
         email: str = payload.get("sub")
         print(f"email: {email}")
@@ -122,7 +122,7 @@ async def check_guest_role(user: Annotated[UserInDB, Depends(get_current_active_
 async def refresh_token(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
     try:
-        payload: TokenPayload = jwt.decode(token, core_settings.SECRET_KEY, algorithms=[core_settings.ALGORITHM])
+        payload: TokenPayload = jwt.decode(token, core_settings.SECRET_KEY, algorithms=[core_settings.JWT_ALGORITHM])
         email: str = payload.get("sub")
         # "mode": "refresh_token"
         token_mode: TokenMode = payload.get("mode")

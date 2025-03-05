@@ -39,8 +39,8 @@ def test1():
 
 async def init_db():
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated= "auto")
-    client = AsyncIOMotorClient(core_settings.DATABASE_URL, uuidRepresentation="standard")
-    database= client[core_settings.DATABASE_NAME]
+    client = AsyncIOMotorClient(core_settings.MONGODB_URL, uuidRepresentation="standard")
+    database= client[core_settings.MONGODB_NAME]
     await init_beanie(database=database, document_models=[User])
     
     # create a User object
@@ -167,7 +167,7 @@ def test3_dict():
     print(f"data['exp']: {data['exp']}, datatype: {type(data['exp'])}")
     print(f"data['token']: {data['token']}, datatype: {type(data['token'])}")
     print(f"data['token_type']: {data['token_type']}, datatype: {type(data['token_type'])}")
-    encoded_jwt: str = jwt.encode(data, core_settings.SECRET_KEY, algorithm=core_settings.ALGORITHM)
+    encoded_jwt: str = jwt.encode(data, core_settings.JWT_SECRET, algorithm=core_settings.JWT_ALGORITHM)
     print(f"encoded_jwt: {encoded_jwt}, datatype: {type(encoded_jwt)}")
 
     dog = TokenPayload(sub="123", exp=tomorrow, mode=TokenMode.access_token)
