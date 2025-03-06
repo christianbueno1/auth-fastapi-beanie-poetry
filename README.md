@@ -123,12 +123,12 @@ MONGODB_NAME=auth_db
 JWT_SECRET="your_jwt_secret_key"
 JWT_ALGORITHM="HS256"
 # access token expire in 60 minutes
-ACCESS_TOKEN_EXPIRE_MINUTES=60
+ACCESS_TOKEN_EXPIRE_MINUTES=2
 # refresh token expire in 30 days 
-REFRESH_TOKEN_EXPIRE_DAYS=30
+REFRESH_TOKEN_EXPIRE_DAYS=1
 
 # Security
-ALLOWED_ORIGINS=https://yourfrontend.com,http://localhost:5173
+ALLOWED_ORIGINS=["https://yourfrontend.com","http://localhost:5173"]
 
 
 
