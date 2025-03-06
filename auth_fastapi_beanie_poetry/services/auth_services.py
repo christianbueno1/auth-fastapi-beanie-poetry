@@ -122,7 +122,7 @@ async def check_guest_role(user: Annotated[UserInDB, Depends(get_current_active_
 async def refresh_token(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
     try:
-        payload: TokenPayload = jwt.decode(token, core_settings.SECRET_KEY, algorithms=[core_settings.JWT_ALGORITHM])
+        payload: TokenPayload = jwt.decode(token, core_settings.JWT_SECRET, algorithms=[core_settings.JWT_ALGORITHM])
         email: str = payload.get("sub")
         # "mode": "refresh_token"
         token_mode: TokenMode = payload.get("mode")
@@ -137,7 +137,6 @@ async def refresh_token(token: Annotated[str, Depends(oauth2_scheme)]):
             if token != user_in_db.token.refresh_token:
                 raise credentials_exception
         data = TokenPayload(sub=user_in_db.email, exp=None, mode=None)
-        # data: TokenPayload = { "sub": user_in_db.email, 'exp': None, 'mode': None }
 
         refresh_token = create_refresh_token(data=data, expires_delta=timedelta(days=core_settings.REFRESH_TOKEN_EXPIRE_DAYS))
         

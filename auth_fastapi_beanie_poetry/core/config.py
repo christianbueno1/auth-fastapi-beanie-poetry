@@ -14,6 +14,6 @@ class CoreSettings(BaseSettings):
     ALLOWED_ORIGINS: list[str]
 
     class Config:
-        env_file = ".env.dev"
+        env_file = ".env"
 
 core_settings = CoreSettings()
