@@ -109,16 +109,27 @@ DB_URL = os.getenv(DB_URL)
 # in production remove this file and set the variables in the server
 touch .env
 vim .env
-# add the following
+# Application settings
+APP_NAME="Your App Name"
+APP_VERSION="0.0.1"
+DEBUG=true
+ENVIRONMENT=development
 
-MONGODB_URL=mongodb://chris:maGazine1!@127.0.0.1:27017
-MONGODB_NAME=registerdb
+# MongoDB settings
+MONGODB_URL=mongodb://username:password@localhost:27017/auth_db?authSource=auth_db
+MONGODB_NAME=auth_db
 
-JWT_SECRET = "83daa0256a2289b0fb23693bf1f6034d44396675749244721a2b20e896e11662"
-JWT_ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-REFRESH_TOKEN_EXPIRE_DAYS=1
-FRONTEND_URL = "http://localhost:5173"
+# JWT settings
+JWT_SECRET="your_jwt_secret_key"
+JWT_ALGORITHM="HS256"
+# access token expire in 60 minutes
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+# refresh token expire in 30 days 
+REFRESH_TOKEN_EXPIRE_DAYS=30
+
+# Security
+ALLOWED_ORIGINS=https://yourfrontend.com,http://localhost:5173
+
 
 
 # use separate .env files for different environments

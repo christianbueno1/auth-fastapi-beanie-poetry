@@ -11,7 +11,7 @@ class CoreSettings(BaseSettings):
     JWT_ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
-    FRONTEND_URL: str  # Add this field
+    ALLOWED_ORIGINS: list[str]
 
     class Config:
         env_file = ".env.dev"
