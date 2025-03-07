@@ -9,6 +9,9 @@ You have a user authentication services API using Python, JWT, FastAPI, Beanie O
 sudo dnf install poetry
 #
 # clone the repo
+gh repo clone christuianbueno/auth-fastapi-beanie-poetry
+
+
 # create the db or run the container db
 # install dependencies of pydantic-core: rust cargo, to compile from source
 sudo dnf install cargo rust
