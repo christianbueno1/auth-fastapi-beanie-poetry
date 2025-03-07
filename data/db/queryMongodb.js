@@ -39,3 +39,10 @@ db.users.find({created_at: {$gte: ISODate('2025-02-20'), $lt: ISODate('2025-03-0
 //
 // And
 db.users.find({$and: [{disabled: false, email: "chris@ibm.com"}]})
+
+// Authentication inside the shell
+// use admin database
+db = db.getSiblingDB("admin");
+db.auth('chris', 'maGazine1!');
+// or use user document like JSON objects
+db.auth({user: "chris", pwd: "maGazine1!devE"});

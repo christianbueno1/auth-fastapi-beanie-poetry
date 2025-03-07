@@ -119,7 +119,7 @@ DEBUG=true
 ENVIRONMENT=development
 
 # MongoDB settings
-MONGODB_URL=mongodb://username:password@localhost:27017/auth_db?authSource=auth_db
+MONGODB_URL="mongodb://username:password@localhost:27017/auth_db?authSource=auth_db"
 MONGODB_NAME=auth_db
 
 # JWT settings
@@ -225,7 +225,7 @@ podman pull docker.io/mongodb/mongodb-community-server:7.0.16-ubi9
 podman pull docker.io/mongodb/mongodb-community-server:latest
 
 #
-podman run -d --name auth -e MONGO_INITDB_ROOT_USERNAME=chris -e MONGO_INITDB_ROOT_PASSWORD='maGazine1!' -p 27017:27017 mongodb-community-server:7.0.16-ubi9
+podman run -d --name auth -e MONGO_INITDB_ROOT_USERNAME=chris -e MONGO_INITDB_ROOT_PASSWORD='maGazine1!devE' -p 27017:27017 mongodb-community-server:7.0.16-ubi9
 
 # install GUI from flathub
 flatpak install flathub com.mongodb.Compass
