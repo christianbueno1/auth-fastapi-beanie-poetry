@@ -14,14 +14,15 @@ WORKDIR /app
 RUN pip install --no-cache-dir poetry==1.8.3
 
 # Copy Poetry configuration files
-COPY pyproject.toml poetry.lock* ./
+COPY pyproject.toml poetry.lock* README.md ./
 
 # Configure Poetry to not create a virtual environment
 RUN poetry config virtualenvs.create false
 
 # Install Python dependencies
 # RUN poetry install --no-root --no-interaction --no-ansi --no-dev
-RUN poetry install --no-interaction --no-ansi --no-dev && poetry install --only-root
+# RUN poetry install --no-interaction --no-ansi --no-dev && poetry install --only-root
+RUN poetry install --no-interaction --no-ansi --only main
 
 # Copy application code
 COPY . .
