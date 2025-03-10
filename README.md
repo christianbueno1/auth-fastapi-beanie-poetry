@@ -119,7 +119,7 @@ DEBUG=true
 ENVIRONMENT=development
 
 # MongoDB settings
-MONGODB_URL="mongodb://username:password@localhost:27017/auth_db?authSource=auth_db"
+MONGODB_URL=mongodb://username:password@localhost:27017/auth_db?authSource=auth_db
 MONGODB_NAME=auth_db
 
 # JWT settings

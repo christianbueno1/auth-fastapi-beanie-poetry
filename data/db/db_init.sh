@@ -1,15 +1,19 @@
 #!/bin/bash
+# filepath: /home/chris/projects/auth-fastapi-beanie-poetry/data/db/db_init.sh
 # This script creates a MongoDB container using Podman and initializes it with a user and database.
 # System fedora 41 Linux
 
 set -e  # Exit on any error
 
-MONGODB_USER=chris
-MONGODB_PASSWORD='maGazine1!devE'
-MONGODB_DB=auth_db
-MONGODB_HOST=localhost
-MONGODB_PORT=27017
-CONTAINER_IMAGE=docker.io/mongodb/mongodb-community-server:7.0.16-ubi9
+# Variables
+POD_NAME="authapi-pod"
+MONGO_USER=chris
+MONGO_PASSWORD='maGazine1!devE'
+MONGO_DB=auth_db
+MONGO_HOST=localhost
+MONGO_PORT=27017
+MONGO_IMAGE=docker.io/mongodb/mongodb-community-server:7.0.16-ubi9
+MONGO_CONTAINER_NAME="authapi-mongo"
 
 echo "=== MongoDB Setup Script ==="
 
@@ -39,34 +43,42 @@ else
 fi
 
 # Check if MongoDB image is available, if not pull it
-if ! podman images | grep -q $CONTAINER_IMAGE; then
+if ! podman images | grep -q "$MONGO_IMAGE"; then
     echo "MongoDB image not found, pulling it..."
-    podman pull $CONTAINER_IMAGE || handle_error "Failed to pull MongoDB image"
+    podman pull "$MONGO_IMAGE" || handle_error "Failed to pull MongoDB image"
     echo "✓ MongoDB image pulled successfully"
 else
     echo "✓ MongoDB image already available"
 fi
 
-# Check if MongoDB container exists, if not create it
-if ! podman ps -a | grep -q "auth"; then
-    echo "MongoDB container not found, creating it..."
-    podman run -d --name auth \
-        -e MONGO_INITDB_ROOT_USERNAME=$MONGODB_USER \
-        -e MONGO_INITDB_ROOT_PASSWORD=$MONGODB_PASSWORD \
-        -p $MONGODB_PORT:$MONGODB_PORT \
-        $CONTAINER_IMAGE || handle_error "Failed to create MongoDB container"
+# Step 1: Check if pod exists, create if not
+if ! podman pod exists "$POD_NAME"; then
+    echo "Creating Podman pod: $POD_NAME"
+    podman pod create --name "$POD_NAME" -p 8000:80 -p 27017:27017 || handle_error "Failed to create pod"
+    echo "✓ Pod created successfully"
+else
+    echo "✓ Pod $POD_NAME already exists"
+fi
+
+# Step 2: Check if MongoDB container exists inside pod, create if not
+if ! podman ps -a --pod "$POD_NAME" | grep -q "$MONGO_CONTAINER_NAME"; then
+    echo "MongoDB container not found in pod, creating it..."
+    podman run -d --pod "$POD_NAME" --name "$MONGO_CONTAINER_NAME" \
+        -e MONGO_INITDB_ROOT_USERNAME="$MONGO_USER" \
+        -e MONGO_INITDB_ROOT_PASSWORD="$MONGO_PASSWORD" \
+        "$MONGO_IMAGE" || handle_error "Failed to create MongoDB container"
     echo "✓ MongoDB container created"
     
     # Wait for MongoDB to start
     echo "Waiting for MongoDB to start..."
-    sleep 5
+    sleep 10
 else
-    echo "✓ MongoDB container exists"
+    echo "✓ MongoDB container exists in pod"
     
     # Check if container is running, if not start it
-    if ! podman ps | grep -q "auth"; then
+    if ! podman ps --pod "$POD_NAME" | grep -q "$MONGO_CONTAINER_NAME"; then
         echo "MongoDB container is not running, starting it..."
-        podman start auth || handle_error "Failed to start MongoDB container"
+        podman start "$MONGO_CONTAINER_NAME" || handle_error "Failed to start MongoDB container"
         echo "✓ MongoDB container started"
         
         # Wait for MongoDB to start
@@ -77,36 +89,35 @@ else
     fi
 fi
 
-# Setup the database and user
-echo "Setting up MongoDB database and user..."
-if podman exec auth mongosh --eval "
+# Step 3: Create MongoDB user for the application
+echo "Creating MongoDB user for the application..."
+if podman exec "$MONGO_CONTAINER_NAME" mongosh --eval "
   db = db.getSiblingDB('admin');
-  db.auth({user: '$MONGODB_USER', pwd: '$MONGODB_PASSWORD'});
-  db = db.getSiblingDB('$MONGODB_DB');
+  db.auth({user: '$MONGO_USER', pwd: '$MONGO_PASSWORD'});
+  db = db.getSiblingDB('$MONGO_DB');
   
   // Check if user already exists
-  if (!db.getUser('$MONGODB_USER')) {
+  const userExists = db.getUser('$MONGO_USER');
+  if (!userExists) {
     db.createUser({
-      user: '$MONGODB_USER',
-      pwd: '$MONGODB_PASSWORD',
-      roles: [{ role: 'readWrite', db: '$MONGODB_DB' }]
+      user: '$MONGO_USER',
+      pwd: '$MONGO_PASSWORD',
+      roles: [{ role: 'readWrite', db: '$MONGO_DB' }]
     });
-    print('User created successfully');
+    print('MongoDB user created successfully.');
   } else {
-    print('User already exists');
+    print('MongoDB user already exists.');
   }
   
   // Create collections if they don't exist
   if (!db.getCollectionNames().includes('users')) {
     db.createCollection('users');
-    print('Users collection created');
+    print('Users collection created.');
   }
   if (!db.getCollectionNames().includes('tokens')) {
     db.createCollection('tokens');
-    print('Tokens collection created');
+    print('Tokens collection created.');
   }
-  
-  print('Database setup completed successfully');
 "; then
     echo "✓ MongoDB database and user setup completed"
 else
@@ -115,5 +126,6 @@ fi
 
 echo ""
 echo "=== Setup Complete ==="
-echo "Connection string: mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DB}?authSource=${MONGODB_DB}"
+echo "MongoDB is available in pod: $POD_NAME"
+echo "Connection string: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?authSource=admin"
 echo ""
