@@ -1,7 +1,7 @@
 POST http://localhost:8000/api/v1/auth/token
 Content-Type: application/x-www-form-urlencoded
 
-username=chris123@ibm.com
+username=christianbueno.1@gmail.com
 &password=maGazine1!
 
 ###
