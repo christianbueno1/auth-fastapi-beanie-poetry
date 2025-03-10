@@ -13,7 +13,7 @@ MONGO_DB="auth_db"
 
 # Step 1: Create a Podman pod
 echo "Creating Podman pod: $POD_NAME"
-podman pod create --name $POD_NAME -p 8000:80 -p 27017:27017
+podman pod create --name $POD_NAME -p 8000:8000 -p 27017:27017
 
 # Step 2: Start MongoDB container
 echo "Starting MongoDB container..."
@@ -57,17 +57,40 @@ if (!db.getCollectionNames().includes('tokens')) {
 }
 "
 
-# Step 4: Build the FastAPI container
+# Step 4: Create environment file for FastAPI
+echo "Creating environment file for FastAPI..."
+cat > .env << EOF
+# Application settings
+APP_NAME="Authentication API"
+APP_VERSION="1.0.0"
+DEBUG=false
+ENVIRONMENT=production
+
+# MongoDB settings
+MONGODB_URL=mongodb://$MONGO_USER:$MONGO_PASSWORD@$MONGO_CONTAINER_NAME:27017/$MONGO_DB?authSource=$MONGO_DB
+MONGODB_NAME=$MONGO_DB
+
+# JWT settings
+JWT_SECRET="83daa0256a2289b0fb23693bf1f6034d44396675749244721a2b20e896e11662"
+JWT_ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES=2
+REFRESH_TOKEN_EXPIRE_DAYS=1
+
+# Security
+ALLOWED_ORIGINS=["https://yourfrontend.com","http://localhost:5173"]
+EOF
+
+# Step 5: Build the FastAPI container
 echo "Building FastAPI container..."
 podman build -t $FASTAPI_IMAGE -f Containerfile .
 
-# Step 5: Start the FastAPI container
+# Step 6: Start the FastAPI container
 echo "Starting FastAPI container..."
 podman run -d --pod $POD_NAME --name $FASTAPI_CONTAINER_NAME \
   --env-file .env \
   $FASTAPI_IMAGE
 
-# Step 6: Display pod and container status
+# Step 7: Display pod and container status
 echo "Pod and containers are running."
 podman pod ps
 podman ps -p
