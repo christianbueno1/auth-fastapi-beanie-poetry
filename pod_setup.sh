@@ -1,4 +1,5 @@
 #!/bin/bash
+# filepath: /home/chris/projects/auth-fastapi-beanie-poetry/pod_setup.sh
 
 # Variables
 POD_NAME="authapi-pod"
@@ -21,33 +22,54 @@ podman run -d --pod $POD_NAME --name $MONGO_CONTAINER_NAME \
   -e MONGO_INITDB_ROOT_PASSWORD="$MONGO_PASSWORD" \
   $MONGO_IMAGE
 
-# Step 3: Build the FastAPI container
+# Wait for MongoDB to be ready
+echo "Waiting for MongoDB to start up..."
+sleep 10
+
+# Step 3: Create MongoDB user for the application
+echo "Creating MongoDB user for the application..."
+podman exec $MONGO_CONTAINER_NAME mongosh --eval "
+db = db.getSiblingDB('admin');
+db.auth({user: '$MONGO_USER', pwd: '$MONGO_PASSWORD'});
+db = db.getSiblingDB('$MONGO_DB');
+
+// Check if user already exists
+const userExists = db.getUser('$MONGO_USER');
+if (!userExists) {
+  db.createUser({
+    user: '$MONGO_USER',
+    pwd: '$MONGO_PASSWORD',
+    roles: [{ role: 'readWrite', db: '$MONGO_DB' }]
+  });
+  print('MongoDB user created successfully.');
+} else {
+  print('MongoDB user already exists.');
+}
+
+// Create collections if they don't exist
+if (!db.getCollectionNames().includes('users')) {
+  db.createCollection('users');
+  print('Users collection created.');
+}
+if (!db.getCollectionNames().includes('tokens')) {
+  db.createCollection('tokens');
+  print('Tokens collection created.');
+}
+"
+
+# Step 4: Build the FastAPI container
 echo "Building FastAPI container..."
 podman build -t $FASTAPI_IMAGE -f Containerfile .
 
-# Step 4: Start the FastAPI container
+# Step 5: Start the FastAPI container
 echo "Starting FastAPI container..."
 podman run -d --pod $POD_NAME --name $FASTAPI_CONTAINER_NAME \
   --env-file .env \
   $FASTAPI_IMAGE
 
-# Step 5: Display pod and container status
+# Step 6: Display pod and container status
 echo "Pod and containers are running."
 podman pod ps
 podman ps -p
 
-# Step 6: Create MongoDB user for the application
-echo "Creating MongoDB user for the application..."
-podman exec $MONGO_CONTAINER_NAME mongosh --eval '
-db = db.getSiblingDB("admin");
-db.auth({user: $MONGO_USER, pwd: $MONGO_PASSWORD});
-db = db.getSiblingDB("$MONGO_DB");
-db.createUser({
-  user: "$MONGO_USER",
-  pwd: "$MONGO_PASSWORD",
-  roles: [{ role: "readWrite", db: "$MONGO_DB" }]
-});
-db.createCollection("users");
-db.createCollection("tokens");
-'
-echo "MongoDB user created successfully."
+echo "Setup complete. Your API is now available at http://localhost:8000"
