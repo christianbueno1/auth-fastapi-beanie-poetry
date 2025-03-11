@@ -39,7 +39,7 @@ echo "Creating Nginx proxy configuration..."
 cat > $NGINX_CONFIG << EOF
 server {
     listen 80;
-    server_name $FULL_DOMAIN_NAME;
+    server_name localhost $FULL_DOMAIN_NAME;
 
     # Access log and error log
     access_log $NGINX_LOG_FILE;
@@ -53,10 +53,10 @@ server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
         
-        # WebSocket support (if needed)
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
+        # # WebSocket support (if needed)
+        # proxy_http_version 1.1;
+        # proxy_set_header Upgrade \$http_upgrade;
+        # proxy_set_header Connection "upgrade";
     }
 }
 EOF
