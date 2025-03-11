@@ -5,7 +5,7 @@ curl -v -X POST http://localhost:8000/api/v1/auth/token \
 curl -v -X POST http://localhost:8000/api/v1/auth/signup \
     -H "Content-Type: application/json" \
     -d '{
-    "username": "bruce1234",
+    "username": "bruce123",
     "email": "bruce123@ibm.com",
     "password": "hello1!A",
     "disabled": false,
@@ -22,8 +22,8 @@ curl http://localhost:8000/api/v1/auth/users \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -d '{
     "username": "tim123",
-    "email": "tim@foo.xyz",
-    "password": "magazine1!",
+    "email": "tim123@ibm.com",
+    "password": "maGazine1!",
     "disabled": false,
     "role": "user"
 }'
