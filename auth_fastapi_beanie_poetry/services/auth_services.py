@@ -17,7 +17,8 @@ from auth_fastapi_beanie_poetry.schemas.user import UserCreate, UserInDB
 from pymongo.errors import DuplicateKeyError
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://authapi.christianbueno.tech/api/v1/auth/token")
 
 async def authenticate_user(username: str, password: str) -> UserInDB:
     user: UserInDB = await get_user(username)
