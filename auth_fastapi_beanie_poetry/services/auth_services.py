@@ -87,6 +87,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
     except InvalidTokenError:
         raise credentials_exception
     user: UserInDB = await get_user_by_email(email=token_data.email)
+    print(f"user: {user}")
     if user is None:
         raise credentials_exception
     return user
@@ -157,6 +158,7 @@ async def create_user(user: UserCreate) -> UserInDB:
     try:
         hashed_password = get_password_hash(user.password)
         new_user = UserModel(**user.model_dump(), hashed_password=hashed_password)
+        print(f"new_user: {new_user}")
         await new_user.insert()
         return new_user
     except DuplicateKeyError as e:

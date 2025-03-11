@@ -13,7 +13,7 @@ class Token(BaseModel):
     token_type: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "token_type": "bearer",
             }
@@ -24,7 +24,7 @@ class TokenData(BaseModel):
     email: str | None = None
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "username": "johndoe",
                 "email": "johndoe@ibm.com",

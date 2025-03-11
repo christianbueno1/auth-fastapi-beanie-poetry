@@ -35,7 +35,8 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> J
     refresh_token: str = create_refresh_token(data=data, expires_delta=timedelta(days=core_settings.REFRESH_TOKEN_EXPIRE_DAYS))
     token = Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
     token_data = TokenData(username=user.username, email=user.email)
-    await UserModel.find_one(UserModel.email == user.email).set({UserModel.token: token, UserModel.token_data: token_data, UserModel.role: Role.USER})
+    # await UserModel.find_one(UserModel.email == user.email).set({UserModel.token: token, UserModel.token_data: token_data, UserModel.role: Role.USER})
+    await UserModel.find_one(UserModel.email == user.email).set({UserModel.token: token, UserModel.token_data: token_data})
     return {
         "message": 'Login successful',
         **jsonable_encoder(token),
