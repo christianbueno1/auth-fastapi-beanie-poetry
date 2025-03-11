@@ -17,7 +17,9 @@ async def get_user_by_email(email: str) -> UserInDB | None:
     try:
         user: UserModel = await UserModel.find_one(UserModel.email == email)
         if user:
+            print(f"User found: {user}")
             user_in_db = UserInDB(**user.model_dump())
+            print(f"UserInDB: {user_in_db}")
             return user_in_db
         return user
     except AttributeError:

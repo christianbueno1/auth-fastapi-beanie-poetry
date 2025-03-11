@@ -62,11 +62,39 @@ async def create_user(user: UserCreate, current_user: Annotated[User, Depends(au
 
 @router.get("/users/me", response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(auth_services.check_user_role)]):
+    print(f"Current user: {current_user}")
+    if current_user is None:
+        raise HTTPException(status_code=400, detail="User not found")
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="User is disabled")
     return current_user
 
 @router.get("/users/me/items")
 async def read_own_items(current_user: Annotated[User, Depends(auth_services.check_user_role)]):
     return [{"item_id": "Foo", "ownert": current_user.username}]
+
+@router.get("/admin/dashboard", response_model=dict)
+async def admin_dashboard(current_user: Annotated[User, Depends(auth_services.check_admin_role)]):
+    """Get admin-specific dashboard information."""
+    # Get system statistics and information only relevant to admins
+    user_count = await UserModel.find().count()
+    recent_users = await UserModel.find().sort(-UserModel.created_at).limit(5).to_list()
+    recent_user_data = [
+        {"username": user.username, "email": user.email, "role": user.role, "created_at": user.created_at}
+        for user in recent_users
+    ]
+    
+    return {
+        "admin": {
+            "username": current_user.username,
+            "email": current_user.email,
+            "role": current_user.role
+        },
+        "stats": {
+            "total_users": user_count,
+            "recent_users": recent_user_data
+        }
+    }
 
 # /signup (public) - For new users to self-register
 # Be publicly accessible (no token required)

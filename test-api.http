@@ -5,11 +5,11 @@ username=christianbueno.1@gmail.com
 &password=maGazine1!
 
 ###
-POST http://143.198.27.14:8000/api/v1/auth/token
+POST http://localhost:8000/api/v1/auth/token
 Content-Type: application/x-www-form-urlencoded
 
-username=christianbueno.1@gmail.com
-&password=maGazine1!
+username=bruce123@ibm.com
+&password=hello1!A
 
 ###
 POST http://localhost:8000/api/v1/auth/token
@@ -27,11 +27,15 @@ username=pam@ibm.com
 
 ###
 POST http://localhost:8000/api/v1/auth/refresh-token
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjaHJpc3RpYW5idWVuby4xQGdtYWlsLmNvbSIsImV4cCI6MTc0MTc0NDEyMiwibW9kZSI6InJlZnJlc2hfdG9rZW4ifQ.Fmr4AHZ7KHDLOXS7gv3b3Qbcfp6UCgPw7DyQatvZDp4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjaHJpc3RpYW5idWVuby4xQGdtYWlsLmNvbSIsImV4cCI6MTc0MTc0NzIwOCwibW9kZSI6InJlZnJlc2hfdG9rZW4ifQ.crhV3eGdyQqtlLYVTUZRws8ovz3p2a5tzUTQJmUw39E
 
 ###
 GET http://localhost:8000/api/v1/auth/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjaHJpc3RpYW5idWVuby4xQGdtYWlsLmNvbSIsImV4cCI6MTc0MTY1Nzk5NiwibW9kZSI6ImFjY2Vzc190b2tlbiJ9.9R4sicYkSembw-ZvPRMeRqcqsPx7ArBicVmeaYG_vZU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjaHJpc3RpYW5idWVuby4xQGdtYWlsLmNvbSIsImV4cCI6MTc0MTY2MTkyMSwibW9kZSI6ImFjY2Vzc190b2tlbiJ9.Kw2dICDEM6Y3xK5sXgiMp-N9Upx0G0nActsG-dimjmA
+
+###
+GET http://localhost:8000/api/v1/auth/admin/dashboard
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjaHJpc3RpYW5idWVuby4xQGdtYWlsLmNvbSIsImV4cCI6MTc0MTY2MzQ4MCwibW9kZSI6ImFjY2Vzc190b2tlbiJ9.4wo-OjY53fjUA0amSBdy-IiCoTvOo4FI71uHg1DJrgs
 
 ###
 # register a new user
