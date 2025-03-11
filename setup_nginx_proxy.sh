@@ -42,12 +42,12 @@ server {
     server_name $FULL_DOMAIN_NAME;
 
     # Access log and error log
-    access_log $GNIX_LOG_FILE;
-    error_log $GNIX_ERROR_LOG_FILE;
+    access_log $NGINX_LOG_FILE;
+    error_log $NGINX_ERROR_LOG_FILE;
 
     # Proxy for API
     location / {
-        proxy_pass http://$FULL_DOMAIN_NAME;:8000;
+        proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -73,5 +73,5 @@ systemctl restart nginx || handle_error "Failed to start Nginx"
 echo ""
 echo "=== Nginx Proxy Setup Complete ==="
 echo "API is now available at:"
-echo "http://$FULL_DOMAIN_NAME; (port 80) → forwarded to → http://$FULL_DOMAIN_NAME;:8000"
+echo "http://$FULL_DOMAIN_NAME (port 80) → forwarded to → http://$FULL_DOMAIN_NAME:8000"
 echo ""

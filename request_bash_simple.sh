@@ -36,3 +36,9 @@ curl -X GET http://localhost:8000/api/v1/auth/users/me \
 
 curl -X GET http://localhost:8000/api/v1/auth/admin/dashboard \
   -H "Authorization: Bearer $ACCESS"
+
+# Using full domain name
+export FULL_DOMAIN_NAME="authapi.christianbueno.tech"
+curl -v -X POST http://authapi.christianbueno.tech/api/v1/auth/token \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "username=christianbueno.1@gmail.com&password=maGazine1\!"
