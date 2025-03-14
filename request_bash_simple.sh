@@ -34,11 +34,43 @@ curl -X POST http://localhost:8000/api/v1/auth/refresh-token \
 curl -X GET http://localhost:8000/api/v1/auth/users/me \
   -H "Authorization: Bearer $ACCESS"
 
-curl -X GET http://localhost:8000/api/v1/auth/admin/dashboard \
+curl -X GET http://localhost:8000/api/v1/auth/admin/dashboards \
   -H "Authorization: Bearer $ACCESS"
 
 # Using full domain name
 export FULL_DOMAIN_NAME="authapi.christianbueno.tech"
+
 curl -v -X POST http://authapi.christianbueno.tech/api/v1/auth/token \
     -H "Content-Type: application/x-www-form-urlencoded" \
     -d "username=christianbueno.1@gmail.com&password=maGazine1\!"
+
+curl -X GET http://authapi.christianbueno.tech/api/v1/auth/users/me \
+  -H "Authorization: Bearer $ACCESS"
+
+# /users/me/items
+curl -X GET http://authapi.christianbueno.tech/api/v1/auth/users/me/items \
+  -H "Authorization: Bearer $ACCESS" \
+
+
+# HTTPS
+curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/token \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "username=christianbueno.1@gmail.com&password=maGazine1\!"
+
+curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/token \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "username=tim123@ibm.com&password=maGazine1\!"
+
+curl -X GET https://authapi.christianbueno.tech/api/v1/auth/users/me \
+  -H "Authorization: Bearer $ACCESS"
+
+# /users/me/items
+curl -X GET https://authapi.christianbueno.tech/api/v1/auth/users/me/items \
+  -H "Authorization: Bearer $ACCESS"
+
+# dashboard
+curl -X GET https://authapi.christianbueno.tech/api/v1/auth/admin/dashboards \
+-H "Authorization: Bearer $ACCESS"
+
+# /clear-tokens
+curl -X POST https://authapi.christianbueno.tech/api/v1/auth/clear-tokens

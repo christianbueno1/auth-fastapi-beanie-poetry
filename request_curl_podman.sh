@@ -45,5 +45,5 @@ podman exec -it authapi-fastapi curl -X POST http://localhost:8000/api/v1/auth/r
 podman exec -it authapi-fastapi curl -X GET http://localhost:8000/api/v1/auth/users/me \
   -H "Authorization: Bearer $ACCESS"
 
-podman exec -it authapi-fastapi curl -X GET http://localhost:8000/api/v1/auth/admin/dashboard \
+podman exec -it authapi-fastapi curl -X GET http://localhost:8000/api/v1/auth/admin/dashboards \
   -H "Authorization: Bearer $ACCESS"

@@ -73,7 +73,7 @@ async def read_users_me(current_user: Annotated[User, Depends(auth_services.chec
 async def read_own_items(current_user: Annotated[User, Depends(auth_services.check_user_role)]):
     return [{"item_id": "Foo", "ownert": current_user.username}]
 
-@router.get("/admin/dashboard", response_model=dict)
+@router.get("/admin/dashboards", response_model=dict)
 async def admin_dashboard(current_user: Annotated[User, Depends(auth_services.check_admin_role)]):
     """Get admin-specific dashboard information."""
     # Get system statistics and information only relevant to admins

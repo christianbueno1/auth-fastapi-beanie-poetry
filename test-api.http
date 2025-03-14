@@ -34,7 +34,7 @@ GET http://localhost:8000/api/v1/auth/users/me
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjaHJpc3RpYW5idWVuby4xQGdtYWlsLmNvbSIsImV4cCI6MTc0MTY2MTkyMSwibW9kZSI6ImFjY2Vzc190b2tlbiJ9.Kw2dICDEM6Y3xK5sXgiMp-N9Upx0G0nActsG-dimjmA
 
 ###
-GET http://localhost:8000/api/v1/auth/admin/dashboard
+GET http://localhost:8000/api/v1/auth/admin/dashboards
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjaHJpc3RpYW5idWVuby4xQGdtYWlsLmNvbSIsImV4cCI6MTc0MTY2MzQ4MCwibW9kZSI6ImFjY2Vzc190b2tlbiJ9.4wo-OjY53fjUA0amSBdy-IiCoTvOo4FI71uHg1DJrgs
 
 ###
