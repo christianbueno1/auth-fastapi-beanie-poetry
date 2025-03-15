@@ -74,3 +74,28 @@ curl -X GET https://authapi.christianbueno.tech/api/v1/auth/admin/dashboards \
 
 # /clear-tokens
 curl -X POST https://authapi.christianbueno.tech/api/v1/auth/clear-tokens
+
+curl -X POST https://authapi.christianbueno.tech/api/v1/auth/refresh-token \
+  -H "Authorization: Bearer $ACCESS"
+
+curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/signup \
+    -H "Content-Type: application/json" \
+    -d '{
+    "username": "bruce123",
+    "email": "bruce123@ibm.com",
+    "password": "hello1!A",
+    "disabled": false,
+    "role": "user"
+}'
+
+# register a new user, only admin can do this    
+curl https://authapi.christianbueno.tech/api/v1/auth/users \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -d '{
+    "username": "tim123",
+    "email": "tim123@ibm.com",
+    "password": "maGazine1!",
+    "disabled": false,
+    "role": "user"
+}'

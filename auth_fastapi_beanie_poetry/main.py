@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from auth_fastapi_beanie_poetry.db.mongo import init_db
 from auth_fastapi_beanie_poetry.api.v1.endpoints.auth import router as auth_router
 from auth_fastapi_beanie_poetry.core.config import core_settings
+import json
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,6 +32,28 @@ async def lifespan(app: FastAPI):
     print("Shutting down...")
 
 app = FastAPI(lifespan=lifespan)
+
+# Parse allowed origins from environment (handles both string and JSON array formats)
+allowed_origins = core_settings.ALLOWED_ORIGINS
+if isinstance(allowed_origins, str):
+    try:
+        # Try to parse as JSON
+        origins = json.loads(allowed_origins)
+    except json.JSONDecodeError:
+        # If not valid JSON, treat as comma-separated string
+        origins = [origin.strip() for origin in allowed_origins.split(",")]
+else:
+    origins = allowed_origins
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With"],
+    max_age=600,  # Cache preflight results for 10 minutes
+)
 
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
 # app.include_router(todo.router, prefix="/todos", tags=["todos"])
