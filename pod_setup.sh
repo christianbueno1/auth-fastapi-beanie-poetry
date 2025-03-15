@@ -77,7 +77,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60
 REFRESH_TOKEN_EXPIRE_DAYS=1
 
 # Security
-ALLOWED_ORIGINS=["https://yourfrontend.com","http://localhost:5173"]
+ALLOWED_ORIGINS=["http://localhost:4321","https://yourproductionsite.com"]
 EOF
 
 # Step 5: Build the FastAPI container

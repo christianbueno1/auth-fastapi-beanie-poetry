@@ -45,6 +45,7 @@ if isinstance(allowed_origins, str):
 else:
     origins = allowed_origins
 
+print(f"Allowed origins: {origins}")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
