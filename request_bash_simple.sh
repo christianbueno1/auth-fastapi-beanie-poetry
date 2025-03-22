@@ -61,6 +61,10 @@ curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/token \
     -H "Content-Type: application/x-www-form-urlencoded" \
     -d "username=tim123@ibm.com&password=maGazine1\!"
 
+curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/token \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "username=brucewayne@ibm.com&password=maGazine1\!"
+
 curl -X GET https://authapi.christianbueno.tech/api/v1/auth/users/me \
   -H "Authorization: Bearer $ACCESS"
 
@@ -81,9 +85,9 @@ curl -X POST https://authapi.christianbueno.tech/api/v1/auth/refresh-token \
 curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/signup \
     -H "Content-Type: application/json" \
     -d '{
-    "username": "bruce123",
-    "email": "bruce123@ibm.com",
-    "password": "hello1!A",
+    "username": "brucewayne",
+    "email": "brucewayne@ibm.com",
+    "password": "maGazine1!",
     "disabled": false,
     "role": "user"
 }'
