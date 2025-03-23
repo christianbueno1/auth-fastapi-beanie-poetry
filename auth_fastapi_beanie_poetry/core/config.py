@@ -12,6 +12,9 @@ class CoreSettings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
     ALLOWED_ORIGINS: list[str]
+    URL: str
+    PREFIX: str
+    FULL_URL: str
 
     class Config:
         env_file = ".env"

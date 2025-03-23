@@ -1,6 +1,6 @@
 from datetime import timedelta
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, Cookie
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.encoders import jsonable_encoder
@@ -20,7 +20,7 @@ router = APIRouter()
 
 
 @router.post("/token")
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> JSONResponse:
+async def login(response: Response, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> JSONResponse:
     form_identifier = form_data.username
     form_password = form_data.password
     try:
@@ -30,22 +30,96 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> J
     ####
     # sub, exp, mode
     data = TokenPayload(sub=user.email, exp=None, mode=None)
-    print(f"access_token_expires: {core_settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
+    # print(f"access_token_expires: {core_settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
+    # Create access and refresh tokens
     access_token: str = create_access_token(data=data, expires_delta=timedelta(minutes=core_settings.ACCESS_TOKEN_EXPIRE_MINUTES))
     refresh_token: str = create_refresh_token(data=data, expires_delta=timedelta(days=core_settings.REFRESH_TOKEN_EXPIRE_DAYS))
+    # Store the tokens in the database
     token = Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
     token_data = TokenData(username=user.username, email=user.email)
     # await UserModel.find_one(UserModel.email == user.email).set({UserModel.token: token, UserModel.token_data: token_data, UserModel.role: Role.USER})
     await UserModel.find_one(UserModel.email == user.email).set({UserModel.token: token, UserModel.token_data: token_data})
+
+    # Create a content dictionary for the response
+    content = {
+        "message": "Login successful",
+        "username": user.username,
+        "email": user.email,
+        "role": user.role,
+    }
+    
+    # Create response object directly
+    response = JSONResponse(content=content)
+
+    # Set HttpOnly cookies
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {access_token}",
+        # value=access_token,
+        httponly=True,
+        max_age=core_settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        expires=core_settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        samesite="lax",
+        secure=core_settings.ENVIRONMENT == "production",  # Only secure in production
+        # quote_cookie_value=False,  # Disable quoting of the cookie value
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        max_age=core_settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        expires=core_settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        samesite="lax",
+        secure=core_settings.ENVIRONMENT == "production",  # Only secure in production
+        path="/api/v1/auth/refresh-token",  # Restrict to refresh endpoint
+    )
+
+    # Return user info without exposing tokens in response body
+    # return JSONResponse(content={
+    #     "message": "Login successful",
+    #     "username": user.username,
+    #     "email": user.email,
+    #     "role": user.role,
+    # })
+    return response
+
+# Add a new endpoint to test authentication directly
+@router.get("/token-debug")
+async def token_debug(request: Request):
+    """Debug endpoint to see what cookies are being received"""
+    cookies = request.cookies
+    headers = dict(request.headers)
+    
     return {
-        "message": 'Login successful',
-        **jsonable_encoder(token),
-        **jsonable_encoder(token_data),
+        "cookies": cookies,
+        "auth_header": headers.get("authorization"),
+        "cookie_access_token": cookies.get("access_token")
     }
 
 @router.post("/refresh-token")
-async def refresh_token(token: Annotated[str, Depends(auth_services.refresh_token)]):
-    return token
+# async def refresh_token(response: Response, refresh_token: Annotated[str, Depends(auth_services.refresh_token)]):
+async def refresh_token(response: Response, refresh_token: Annotated[str | None, Cookie()] = None) -> JSONResponse:
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Refresh token not provided")
+    
+    # Using existing refresh token service but passing the cookie value
+    new_access_token = await auth_services.refresh_token(refresh_token)
+
+    # Get token expiration from settings
+    expires = core_settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+
+    # Set the new access token as HttpOnly cookie
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {new_access_token}",
+        httponly=True,
+        max_age=expires,
+        expires=expires,
+        samesite="lax",
+        secure=core_settings.ENVIRONMENT == "production", 
+    )
+    
+    return JSONResponse(content={"message": "Token refreshed successfully"})
 
 # /users (protected) - For admins to manage users
 # Only admin users can access this endpoint and create users with specific roles: admin, user, guest
@@ -62,7 +136,7 @@ async def create_user(user: UserCreate, current_user: Annotated[User, Depends(au
 
 @router.get("/users/me", response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(auth_services.check_user_role)]):
-    print(f"Current user: {current_user}")
+    # print(f"Current user: {current_user}")
     if current_user is None:
         raise HTTPException(status_code=400, detail="User not found")
     if current_user.disabled:
@@ -120,5 +194,12 @@ async def signup(user: UserCreate):
 @router.post("/clear-tokens")
 async def clear_tokens():
     result = await auth_services.clear_all_tokens()
-    print(f"Result: {result}")
+    # print(f"Result: {result}")
     return {"message": "Tokens cleared", "modified_count": result.modified_count}
+
+@router.post("/logout")
+async def logout(response: Response):
+    """Clear authentication cookies"""
+    response.delete_cookie(key="access_token")
+    response.delete_cookie(key="refresh_token", path="/api/v1/auth/refresh-token")
+    return {"message": "Logged out successfully"}

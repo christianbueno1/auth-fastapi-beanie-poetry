@@ -9,8 +9,9 @@ import json
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    print(f"Starting up with settings:")
-    print(f"Token expiration minutes: {core_settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
+    # print(f"Starting up with settings:")
+    # print(f"Token expiration minutes: {core_settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
+    # print(f"Environment: {core_settings.ENVIRONMENT}")
     await init_db()
 
     # Create admin if doesn't exist
@@ -45,7 +46,7 @@ if isinstance(allowed_origins, str):
 else:
     origins = allowed_origins
 
-print(f"Allowed origins: {origins}")
+# print(f"Allowed origins: {origins}")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -56,5 +57,5 @@ app.add_middleware(
     max_age=600,  # Cache preflight results for 10 minutes
 )
 
-app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(auth_router, prefix=core_settings.PREFIX, tags=["auth"])
 # app.include_router(todo.router, prefix="/todos", tags=["todos"])

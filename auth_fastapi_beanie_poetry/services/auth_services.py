@@ -1,10 +1,11 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Cookie
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.encoders import jsonable_encoder
 import jwt
+# from jose import JWTError, jwt
 from auth_fastapi_beanie_poetry.crud.user import get_user, get_user_by_email
 from auth_fastapi_beanie_poetry.models.token import TokenData, Token, TokenMode, TokenPayload
 from auth_fastapi_beanie_poetry.models.user import Role, User as UserModel
@@ -16,9 +17,39 @@ from jwt.exceptions import InvalidTokenError
 from auth_fastapi_beanie_poetry.schemas.user import UserCreate, UserInDB
 from pymongo.errors import DuplicateKeyError
 
+# if core_settings.ENVIRONMENT == "production":
+#     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://authapi.christianbueno.tech/api/v1/auth/token")
+# elif core_settings.ENVIRONMENT == "development":
+#     oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{core_settings.PREFIX.lstrip('/')}/token")
 
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://authapi.christianbueno.tech/api/v1/auth/token")
+# Relative path is always the right approach, regardless of environment
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl=f"{core_settings.PREFIX.lstrip('/')}/token", auto_error=False
+)
+
+# Create a function that combines both token sources
+async def get_token_from_request(
+    token: Annotated[str | None, Depends(oauth2_scheme)] = None,
+    access_token: Annotated[str | None, Cookie()] = None
+) -> str | None:
+    # For debugging
+    # print(f"OAuth2 token: {token}")
+    # print(f"Cookie token: {access_token}")
+    if token:
+        return token
+    if access_token:
+        # print(f"Access token from cookie: {access_token}")
+        # access_token = access_token.strip('"')
+        # Remove the "Bearer " prefix if it exists
+        if access_token.startswith("Bearer "):
+            access_token = access_token[7:]
+            # print(f"Access token without Bearer: {access_token}")
+        return access_token
+    
+    # Return header token if available, otherwise cookie
+    # return token or access_token
+    return None
+
 
 async def authenticate_user(username: str, password: str) -> UserInDB:
     user: UserInDB = await get_user(username)
@@ -64,31 +95,44 @@ async def authenticate_user_or_email(identifier: str, password: str) -> UserInDB
 # get_current_user
 # email is the sub claim of the JWT token
 # token= sub, exp, mode
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> UserInDB:
+# async def get_current_user(token: Annotated[str | None, Depends(oauth2_scheme)] = None, access_token: Annotated[str | None, Cookie()] = None) -> UserInDB:
+async def get_current_user(token: Annotated[str | None, Depends(get_token_from_request)]) -> UserInDB:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    # print(f"Final token received: {token}")
+    
+    if not token:
+        print("No token provided")
+        raise credentials_exception
+
     try:
-        print(f"token: {token}")
-        print(f"access_token_expires: {core_settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
+        # Debug decoded token value
+        # decoded_token_parts = token.split('.')
+        # if len(decoded_token_parts) != 3:
+        #     print("WARNING: Token does not appear to be a valid JWT (should have 3 parts)")
+            
+        # print(f"token: {token}")
+        # print(f"access_token_expires: {core_settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
         payload: TokenPayload = jwt.decode(token, core_settings.JWT_SECRET, algorithms=[core_settings.JWT_ALGORITHM])
-        print(f"payload: {payload}")
+        # print(f"payload: {payload}")
         email: str = payload.get("sub")
-        print(f"email: {email}")
+        # print(f"email: {email}")
         mode: TokenMode = payload.get("mode")
-        print(f"mode: {mode}")
-        if email is None:
+        # print(f"mode: {mode}")
+        if email is None or mode != "access_token":
             raise credentials_exception
         if mode != TokenMode.access_token:
             raise credentials_exception
-        token_data = TokenData(email=email)
-        print(f"token_data: {token_data}")
-    except InvalidTokenError:
+        token_data = TokenData(username=None, email=email)
+        # print(f"token_data: {token_data}")
+    except InvalidTokenError as e:
+        print(f"JWT decode error: {str(e)}")
         raise credentials_exception
     user: UserInDB = await get_user_by_email(email=token_data.email)
-    print(f"user-: {user}")
+    # print(f"user-: {user}")
     if user is None:
         raise credentials_exception
     return user
@@ -159,7 +203,7 @@ async def create_user(user: UserCreate) -> UserInDB:
     try:
         hashed_password = get_password_hash(user.password)
         new_user = UserModel(**user.model_dump(), hashed_password=hashed_password)
-        print(f"new_user: {new_user}")
+        # print(f"new_user: {new_user}")
         await new_user.insert()
         return new_user
     except DuplicateKeyError as e:

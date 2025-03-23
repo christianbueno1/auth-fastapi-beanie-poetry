@@ -37,3 +37,15 @@ This table reflects the improved naming conventions and consistency across the e
 
 ---
 Answer from Perplexity: pplx.ai/share
+
+### Table 2
+| **Endpoint** | **Method** | **Description** | **Headers** | **Body/Data** |
+| --- | --- | --- | --- | --- |
+| `/api/v1/auth/token` | `POST` | Obtain an access token by providing username and password. | `Content-Type: application/x-www-form-urlencoded` | `username=<email>&password=<password>` |
+| `/api/v1/auth/users/me` | `GET` | Retrieve details of the currently authenticated user. | `Authorization: Bearer $ACCESS` | None |
+| `/api/v1/auth/users/me/items` | `GET` | Retrieve items associated with the currently authenticated user. | `Authorization: Bearer $ACCESS` | None |
+| `/api/v1/auth/admin/dashboards` | `GET` | Access admin dashboard data (requires admin privileges). | `Authorization: Bearer $ACCESS` | None |
+| `/api/v1/auth/clear-tokens` | `POST` | Clear all tokens (likely for logout or token invalidation). | None | None |
+| `/api/v1/auth/refresh-token` | `POST` | Refresh the access token using the current valid token. | `Authorization: Bearer $ACCESS` | None |
+| `/api/v1/auth/signup` | `POST` | Register a new user. | `Content-Type: application/json` | `{ "username": "brucewayne", "email": "brucewayne@ibm.com", "password": "maGazine1!", ... }` |
+| `/api/v1/auth/users` | `POST` | Register a new user (admin-only endpoint). | `Content-Type: application/json`, `Authorization: Bearer $ACCESS_TOKEN` | `{ "username": "tim123", "email": "tim123@ibm.com", "password": "maGazine1!", ... }` |

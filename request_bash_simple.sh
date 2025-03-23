@@ -82,6 +82,7 @@ curl -X POST https://authapi.christianbueno.tech/api/v1/auth/clear-tokens
 curl -X POST https://authapi.christianbueno.tech/api/v1/auth/refresh-token \
   -H "Authorization: Bearer $ACCESS"
 
+# public signup
 curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/signup \
     -H "Content-Type: application/json" \
     -d '{
@@ -103,3 +104,37 @@ curl https://authapi.christianbueno.tech/api/v1/auth/users \
     "disabled": false,
     "role": "user"
 }'
+
+### HttpOnly cookies
+# export COOKIE_JAR="cookies.txt"
+touch cookies.txt
+
+curl -v -X POST http://localhost:8000/api/v1/auth/token \
+    -c "$COOKIE_JAR" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "username=bruce123@ibm.com&password=hello1\!A"
+
+curl -v -X GET http://localhost:8000/api/v1/auth/users/me \
+    -b "$COOKIE_JAR"
+#    
+curl -v -X POST http://localhost:8000/api/v1/auth/token \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "username=christianbueno.1@gmail.com&password=maGazine1\!" \
+    -c cookies.txt
+
+curl -v -X POST http://localhost:8000/api/v1/auth/token \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "username=bruce123@ibm.com&password=hello1\!A" \
+    -c cookies.txt
+
+curl -v -X GET http://localhost:8000/api/v1/auth/users/me \
+    -H "Authorization: Bearer $ACCESS" \
+    -b cookies.txt
+
+curl -X GET http://localhost:8000/api/v1/auth/admin/dashboards \
+  -H "Authorization: Bearer $ACCESS" \
+  -b cookies.txt
+
+curl -X POST http://localhost:8000/api/v1/auth/refresh-token \
+  -H "Authorization: Bearer $ACCESS" \
+  -c "$COOKIE_JAR"
