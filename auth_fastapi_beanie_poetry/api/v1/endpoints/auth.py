@@ -11,6 +11,7 @@ from auth_fastapi_beanie_poetry.services import auth_services
 from auth_fastapi_beanie_poetry.models.token import Token, TokenData, TokenPayload
 from auth_fastapi_beanie_poetry.models.user import Role, User as UserModel
 from auth_fastapi_beanie_poetry.core.config import core_settings
+import json
 # from app.schemas.user import UserCreate
 # from app.services.auth_service import create_user, authenticate_user
 
@@ -52,6 +53,8 @@ async def login(response: Response, credentials: LoginCredentials) -> JSONRespon
     }
     
     # Create response object directly
+    # content parameter = response body
+    # Content-type header is set to application/json
     response = JSONResponse(content=content)
 
     # Set HttpOnly cookies
@@ -105,17 +108,32 @@ async def token_debug(request: Request):
 #     return token
 
 @router.post("/refresh-token")
-# async def refresh_token(response: Response, refresh_token: Annotated[str, Depends(auth_services.refresh_token)]):
-async def refresh_token(response: Response, refresh_token: Annotated[str | None, Cookie()] = None) -> JSONResponse:
-    if not refresh_token:
+async def refresh_token(response: Response, user: Annotated[UserInDB, Depends(auth_services.get_current_active_user)]) -> Response:
+    refresh_token_value = user.token.refresh_token
+    if not refresh_token_value:
         raise HTTPException(status_code=401, detail="Refresh token not provided")
     
-    # Using existing refresh token service but passing the cookie value
-    new_access_token = await auth_services.refresh_token(refresh_token)
+    # Create new tokens using your refresh logic
+    token: Token = await auth_services.refresh_token(refresh_token_value)
+    print(f"Token: {token}")
+    new_access_token = token.access_token
+    new_refresh_token = token.refresh_token
 
-    # Get token expiration from settings
+    # Get expiration values from settings
     expires = core_settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    expires_refresh_token = core_settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
 
+    # Write response content to the same Response instance so cookies are included
+    content = {
+        "message": "Token refreshed successfully",
+        "access_token": new_access_token,
+        "refresh_token": new_refresh_token,
+        "expires_in": expires,
+        "token_type": "bearer"
+    }
+    response = JSONResponse(content=content)
+
+    # Order is important: set cookies after setting the response content, if you set the content after setting the cookies, the cookies will not be included in the response
     # Set the new access token as HttpOnly cookie
     response.set_cookie(
         key="access_token",
@@ -127,13 +145,25 @@ async def refresh_token(response: Response, refresh_token: Annotated[str | None,
         secure=core_settings.ENVIRONMENT == "production", 
     )
     
-    return JSONResponse(content={"message": "Token refreshed successfully"})
+    # Set the new refresh token as HttpOnly cookie
+    response.set_cookie(
+        key="refresh_token",
+        value=new_refresh_token,
+        httponly=True,
+        max_age=expires_refresh_token,
+        expires=expires_refresh_token,
+        samesite="lax",
+        secure=core_settings.ENVIRONMENT == "production",
+        path="/api/v1/auth/refresh-token",  # Restrict to refresh endpoint
+    )
+    
+    return response
 
 
 # /users (protected) - For admins to manage users
 # Only admin users can access this endpoint and create users with specific roles: admin, user, guest
 # The first admin user would typically be created directly in the database or through a separate initialization process
-@router.post("/users", response_model=User)
+@router.post("/admin/users", response_model=User)
 async def create_user(user: UserCreate, current_user: Annotated[User, Depends(auth_services.check_admin_role)]):
     try :
         user: UserInDB = await auth_services.create_user(user)
@@ -155,7 +185,7 @@ async def read_users_me(current_user: Annotated[User, Depends(auth_services.chec
 
 @router.get("/users/me/items")
 async def read_own_items(current_user: Annotated[User, Depends(auth_services.check_user_role)]):
-    return [{"item_id": "Foo", "ownert": current_user.username}]
+    return [{"item_id": "Foo", "owner": current_user.username}]
 
 @router.get("/admin/dashboards", response_model=dict)
 async def admin_dashboard(current_user: Annotated[User, Depends(auth_services.check_admin_role)]):
@@ -208,8 +238,15 @@ async def clear_tokens():
     return {"message": "Tokens cleared", "modified_count": result.modified_count}
 
 @router.post("/logout")
-async def logout(response: Response):
-    """Clear authentication cookies"""
+async def logout(response: Response, current_user: Annotated[UserInDB, Depends(auth_services.get_current_active_user)]):
+    """Clear authentication cookies and revoke tokens"""
+    # Revoke tokens by setting token and token_data to None in the database
+    await UserModel.find_one(UserModel.email == current_user.email).set({
+        UserModel.token: None,
+        UserModel.token_data: None
+    })
+
+    # Clear authentication cookies
     response.delete_cookie(key="access_token")
     response.delete_cookie(key="refresh_token", path="/api/v1/auth/refresh-token")
     return {"message": "Logged out successfully"}

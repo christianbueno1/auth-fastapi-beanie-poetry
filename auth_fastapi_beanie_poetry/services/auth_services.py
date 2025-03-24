@@ -129,12 +129,18 @@ async def get_current_user(token: Annotated[str | None, Depends(get_token_from_r
             raise credentials_exception
         if mode != TokenMode.access_token:
             raise credentials_exception
-        token_data = TokenData(username=None, email=email)
+        user: UserInDB = await get_user_by_email(email=email)
+        if token != user.token.access_token:
+            raise credentials_exception
+        # token_data = TokenData(username=user.username, email=email)
+        
         # print(f"token_data: {token_data}")
     except InvalidTokenError as e:
         print(f"JWT decode error: {str(e)}")
         raise credentials_exception
-    user: UserInDB = await get_user_by_email(email=token_data.email)
+    except AttributeError as e:
+        print(f"Attribute error: {str(e)}")
+        raise credentials_exception
     # print(f"user-: {user}")
     if user is None:
         raise credentials_exception
@@ -168,10 +174,11 @@ async def check_guest_role(user: Annotated[UserInDB, Depends(get_current_active_
         raise permissions_exception
 
 # refresh token
-async def refresh_token(token: Annotated[str, Depends(oauth2_scheme)]):
+async def refresh_token(token: Annotated[str, Depends(oauth2_scheme)]) -> Token:
     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
     try:
         payload: TokenPayload = jwt.decode(token, core_settings.JWT_SECRET, algorithms=[core_settings.JWT_ALGORITHM])
+        # print(f"payload: {payload}")
         email: str = payload.get("sub")
         # "mode": "refresh_token"
         token_mode: TokenMode = payload.get("mode")
@@ -180,26 +187,27 @@ async def refresh_token(token: Annotated[str, Depends(oauth2_scheme)]):
         if token_mode != TokenMode.refresh_token:
             raise credentials_exception
         user_in_db: UserInDB = await get_user_by_email(email=email)
+        # print(f"user_in_db.token.refresh_token: {user_in_db.token.refresh_token}")
         if user_in_db is None:
             raise credentials_exception
         else:
+            # compare the refresh token from the payload with the one in the database
             if token != user_in_db.token.refresh_token:
                 raise credentials_exception
         data = TokenPayload(sub=user_in_db.email, exp=None, mode=None)
 
-        refresh_token = create_refresh_token(data=data, expires_delta=timedelta(days=core_settings.REFRESH_TOKEN_EXPIRE_DAYS))
-        
-        await UserModel.find_one(UserModel.email == user_in_db.email).set({UserModel.token.refresh_token: refresh_token})
-        
         access_token = create_access_token(data=data, expires_delta=timedelta(minutes=core_settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+        
+        refresh_token = create_refresh_token(data=data, expires_delta=timedelta(days=core_settings.REFRESH_TOKEN_EXPIRE_DAYS))
+        # print(f"refresh_token::: {refresh_token}")
         
         new_token: Token = Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
         
+        await UserModel.find_one(UserModel.email == user_in_db.email).set({UserModel.token: new_token})
+        
     except InvalidTokenError:
         raise credentials_exception
-    return {
-        **jsonable_encoder(new_token)
-    }
+    return new_token
 
 # create_user
 async def create_user(user: UserCreate) -> UserInDB:

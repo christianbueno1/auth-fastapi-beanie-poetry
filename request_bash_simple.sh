@@ -131,6 +131,10 @@ curl -v -X GET http://localhost:8000/api/v1/auth/users/me \
     -H "Authorization: Bearer $ACCESS" \
     -b "$COOKIE_JAR" | jq '.'
 
+curl -v -X GET http://localhost:8000/api/v1/auth/users/me/items \
+    -H "Authorization: Bearer $ACCESS" \
+    -b "$COOKIE_JAR" | jq '.'
+
 curl -X GET http://localhost:8000/api/v1/auth/admin/dashboards \
   -H "Authorization: Bearer $ACCESS" \
   -b "$COOKIE_JAR" | jq '.'
@@ -138,7 +142,7 @@ curl -X GET http://localhost:8000/api/v1/auth/admin/dashboards \
 curl -X POST http://localhost:8000/api/v1/auth/refresh-token \
   -H "Authorization: Bearer $ACCESS" \
   -b "$COOKIE_JAR" \
-  -c "$COOKIE_JAR.new"
+  -c "$COOKIE_JAR.new" | jq '.'
 
 # using json format
 
@@ -160,22 +164,22 @@ curl http://localhost:8000/api/v1/auth/admin/users \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -b "$COOKIE_JAR" \
   -d '{
-    "username": "tim123",
-    "email": "tim123@ibm.com",
+    "username": "peterparker",
+    "email": "peterparker@ibm.com",
     "password": "maGazine1!",
     "disabled": false,
     "role": "user"
-}'
+}' | jq '.'
 
 curl -v -X POST http://localhost:8000/api/v1/auth/signup \
     -H "Content-Type: application/json" \
     -d '{
-    "username": "steve123",
+    "username": "steverogers",
     "email": "steverogers@ibm.com",
     "password": "maGazine1!",
     "disabled": false,
     "role": "user"
-}'
+}' | jq '.'
 
 curl -v -X POST http://localhost:8000/api/v1/auth/token \
     -H "Content-Type: application/json" \
@@ -188,8 +192,24 @@ curl -v -X POST http://localhost:8000/api/v1/auth/token \
 curl -v -X POST http://localhost:8000/api/v1/auth/token \
     -H "Content-Type: application/json" \
     -d '{
+    "identifier": "peterparker@ibm.com",
+    "password": "maGazine1!"
+    }' \
+    -c "$COOKIE_JAR" | jq '.'
+
+curl -v -X POST http://localhost:8000/api/v1/auth/token \
+    -H "Content-Type: application/json" \
+    -d '{
     "identifier": "christianbueno.1@gmail.com",
     "password": "maGazine1!"
+    }' \
+    -c "$COOKIE_JAR" | jq '.'
+
+curl -v -X POST http://localhost:8000/api/v1/auth/token \
+    -H "Content-Type: application/json" \
+    -d '{
+    "identifier": "christianbueno.1@gmail.com",
+    "password": "hello1!A"
     }' \
     -c "$COOKIE_JAR" | jq '.'
 
@@ -199,12 +219,27 @@ curl -v -X POST http://localhost:8000/api/v1/auth/token \
     "identifier": "steverogers@ibm.com",
     "password": "maGazine1!"
     }' \
-    -c "$COOKIE_JAR"
+    -c "$COOKIE_JAR" | jq '.'
 
 # forgot-password
 # new_password="hello1!A"
 curl -v -X POST http://localhost:8000/api/v1/auth/forgot-password \
     -H "Content-Type: application/json" \
     -d '{
-    "email": "brucewayne@ibm.com"
+    "email": "christianbueno.1@gmail.com"
     }' | jq '.'
+
+# reset-password
+curl -v -X POST http://localhost:8000/api/v1/auth/reset-password \
+  -H "Content-Type: application/json" \
+  -d '{
+  "token": "$TOKEN",
+  "new_password": "maGazine1!"
+}' | jq '.'
+
+curl -X POST http://localhost:8000/api/v1/auth/clear-tokens
+
+# logout
+curl -X POST http://localhost:8000/api/v1/auth/logout \
+  -H "Authorization: Bearer $ACCESS" \
+  -b "$COOKIE_JAR" | jq '.'
