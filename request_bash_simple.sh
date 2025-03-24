@@ -129,12 +129,82 @@ curl -v -X POST http://localhost:8000/api/v1/auth/token \
 
 curl -v -X GET http://localhost:8000/api/v1/auth/users/me \
     -H "Authorization: Bearer $ACCESS" \
-    -b cookies.txt
+    -b "$COOKIE_JAR" | jq '.'
 
 curl -X GET http://localhost:8000/api/v1/auth/admin/dashboards \
   -H "Authorization: Bearer $ACCESS" \
-  -b cookies.txt
+  -b "$COOKIE_JAR" | jq '.'
 
 curl -X POST http://localhost:8000/api/v1/auth/refresh-token \
   -H "Authorization: Bearer $ACCESS" \
-  -c "$COOKIE_JAR"
+  -b "$COOKIE_JAR" \
+  -c "$COOKIE_JAR.new"
+
+# using json format
+
+# register a new user, only admin can do this
+curl http://localhost:8000/api/v1/auth/admin/users \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -b "$COOKIE_JAR" \
+  -d '{
+    "username": "brucewayne",
+    "email": "brucewayne@ibm.com",
+    "password": "maGazine1!",
+    "disabled": false,
+    "role": "user"
+}'
+
+curl http://localhost:8000/api/v1/auth/admin/users \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -b "$COOKIE_JAR" \
+  -d '{
+    "username": "tim123",
+    "email": "tim123@ibm.com",
+    "password": "maGazine1!",
+    "disabled": false,
+    "role": "user"
+}'
+
+curl -v -X POST http://localhost:8000/api/v1/auth/signup \
+    -H "Content-Type: application/json" \
+    -d '{
+    "username": "steve123",
+    "email": "steverogers@ibm.com",
+    "password": "maGazine1!",
+    "disabled": false,
+    "role": "user"
+}'
+
+curl -v -X POST http://localhost:8000/api/v1/auth/token \
+    -H "Content-Type: application/json" \
+    -d '{
+    "identifier": "brucewayne@ibm.com",
+    "password": "maGazine1!"
+    }' \
+    -c "$COOKIE_JAR"
+
+curl -v -X POST http://localhost:8000/api/v1/auth/token \
+    -H "Content-Type: application/json" \
+    -d '{
+    "identifier": "christianbueno.1@gmail.com",
+    "password": "maGazine1!"
+    }' \
+    -c "$COOKIE_JAR" | jq '.'
+
+curl -v -X POST http://localhost:8000/api/v1/auth/token \
+    -H "Content-Type: application/json" \
+    -d '{
+    "identifier": "steverogers@ibm.com",
+    "password": "maGazine1!"
+    }' \
+    -c "$COOKIE_JAR"
+
+# forgot-password
+# new_password="hello1!A"
+curl -v -X POST http://localhost:8000/api/v1/auth/forgot-password \
+    -H "Content-Type: application/json" \
+    -d '{
+    "email": "brucewayne@ibm.com"
+    }' | jq '.'

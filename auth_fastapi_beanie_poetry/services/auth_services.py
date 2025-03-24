@@ -1,5 +1,7 @@
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 from typing import Annotated
+import secrets
+import string
 
 from fastapi import Depends, HTTPException, status, Cookie
 from fastapi.security import OAuth2PasswordBearer
@@ -16,6 +18,7 @@ from jwt.exceptions import InvalidTokenError
 
 from auth_fastapi_beanie_poetry.schemas.user import UserCreate, UserInDB
 from pymongo.errors import DuplicateKeyError
+from auth_fastapi_beanie_poetry.models.reset_token import ResetToken
 
 # if core_settings.ENVIRONMENT == "production":
 #     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://authapi.christianbueno.tech/api/v1/auth/token")
@@ -234,3 +237,80 @@ async def clear_all_tokens():
         }
     })
     return update_result
+
+# Password reset functions
+async def generate_password_reset_token(email: str) -> str:
+    """Generate a password reset token and store it in the token collection"""
+    user = await get_user_by_email(email)
+    
+    # Avoid leaking user existence, but still generate a token for security
+    if not user:
+        # Return a fake token for non-existent users (for security)
+        return ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(64))
+    
+    # Create secure token
+    token = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(64))
+    
+    # Set token expiration (1 hour)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    
+    # Create token document
+    reset_token = ResetToken(
+        user_email=email,
+        token=token,
+        expires_at=expires_at
+    )
+    
+    # Save token to database
+    await reset_token.insert()
+    
+    return token
+
+async def verify_password_reset_token(token: str) -> str:
+    """Verify a password reset token and return the associated email"""
+    # Find token in database
+    reset_token = await ResetToken.find_one(
+        ResetToken.token == token,
+        ResetToken.used == False,
+        ResetToken.expires_at > datetime.now(timezone.utc)
+    )
+    
+    if not reset_token:
+        raise HTTPException(
+            status_code=400, 
+            detail="Invalid or expired password reset token"
+        )
+    
+    return reset_token.user_email
+
+async def reset_password_with_token(token: str, new_password: str) -> bool:
+    """Reset a user's password using a reset token"""
+    # Verify token and get email
+    user_email = await verify_password_reset_token(token)
+    
+    # Get user
+    user: UserInDB = await get_user_by_email(user_email)
+    if not user:
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    # Update password
+    hashed_password = get_password_hash(new_password)
+    await UserModel.find_one(UserModel.email == user_email).update({
+        "$set": {
+            "hashed_password": hashed_password,
+            "last_password_reset": datetime.now(timezone.utc)
+        }
+    })
+    
+    # Mark token as used
+    await ResetToken.find_one(ResetToken.token == token).update({
+        "$set": {"used": True}
+    })
+    
+    # Clear sessions for security
+    await UserModel.find_one(UserModel.email == user_email).set({
+        "token": None,
+        "token_data": None
+    })
+    
+    return True

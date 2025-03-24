@@ -66,6 +66,9 @@ openssl rand -hex 32
 
 ## Prompt
 - Give me an example of structure of files in a python backend web application or REST API, following the best conventions in architecture in microservices, low coupling, high cohesion, SOLID
+- FastAPI, Beanie ODM, MongoDB
+- JWT, OAuth2, bcrypt
+- Use poetry for dependency management
 
 ## Notes
 ```
