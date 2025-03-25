@@ -57,17 +57,18 @@ if (!db.getCollectionNames().includes('tokens')) {
 "
 
 # Step 4: Create environment file for FastAPI
+# using a heredoc with unquoted delimiter EOF to allow variable expansion
 echo "📝 Creating environment file for FastAPI..."
 cat > .env << EOF
 # Application settings
 APP_NAME="Authentication API"
-APP_VERSION="1.0.0"
+APP_VERSION=1.0.0
 DEBUG=false
 ENVIRONMENT=production
 
-URL="https://authapi.christianbueno.tech"
-PREFIX="/api/v1/auth"
-FULL_URL="${URL}${PREFIX}"
+URL=https://authapi.christianbueno.tech
+PREFIX=/api/v1/auth
+FULL_URL=${URL}${PREFIX}
 
 # MongoDB settings
 MONGODB_URL=mongodb://$MONGO_USER:$MONGO_PASSWORD@$MONGO_CONTAINER_NAME:27017/$MONGO_DB?authSource=$MONGO_DB
