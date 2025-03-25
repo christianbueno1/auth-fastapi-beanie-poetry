@@ -305,3 +305,7 @@ async def reset_password(request: ResetPasswordRequest):
         raise HTTPException(status_code=500, detail="An error occurred while resetting password")
         
     raise HTTPException(status_code=400, detail="Unable to reset password")
+
+@router.get("/")
+async def root():
+    return {"message": "Auth API is running"}

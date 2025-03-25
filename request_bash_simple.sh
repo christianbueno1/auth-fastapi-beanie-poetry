@@ -243,3 +243,6 @@ curl -X POST http://localhost:8000/api/v1/auth/clear-tokens
 curl -X POST http://localhost:8000/api/v1/auth/logout \
   -H "Authorization: Bearer $ACCESS" \
   -b "$COOKIE_JAR" | jq '.'
+
+# check root domain
+curl -X GET http://localhost:8000/api/v1/auth/ | jq '.'
