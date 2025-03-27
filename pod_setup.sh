@@ -82,6 +82,15 @@ REFRESH_TOKEN_EXPIRE_DAYS=1
 
 # Security
 ALLOWED_ORIGINS=["http://localhost:4321","https://christianbueno.tech"]
+
+# Email configuration
+MAIL_USERNAME=prabbzacsspy4tdy
+MAIL_PASSWORD=1mrgqdpl3k2jksxi
+MAIL_FROM=no-reply@example.com
+MAIL_PORT=2525
+MAIL_SERVER=smtp.mailmug.net
+MAIL_SSL_TLS=False
+USE_CREDENTIALS=True
 EOF
 
 # Step 5: Build the FastAPI container

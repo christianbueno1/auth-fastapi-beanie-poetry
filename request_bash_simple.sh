@@ -127,14 +127,17 @@ curl -v -X POST http://localhost:8000/api/v1/auth/token \
     -d "username=bruce123@ibm.com&password=hello1\!A" \
     -c cookies.txt
 
+# /users/me
 curl -v -X GET http://localhost:8000/api/v1/auth/users/me \
     -H "Authorization: Bearer $ACCESS" \
     -b "$COOKIE_JAR" | jq '.'
 
+# /users/me/items
 curl -v -X GET http://localhost:8000/api/v1/auth/users/me/items \
     -H "Authorization: Bearer $ACCESS" \
     -b "$COOKIE_JAR" | jq '.'
 
+# /admin/dashboards
 curl -X GET http://localhost:8000/api/v1/auth/admin/dashboards \
   -H "Authorization: Bearer $ACCESS" \
   -b "$COOKIE_JAR" | jq '.'
@@ -171,6 +174,7 @@ curl http://localhost:8000/api/v1/auth/admin/users \
     "role": "user"
 }' | jq '.'
 
+# signup
 curl -v -X POST http://localhost:8000/api/v1/auth/signup \
     -H "Content-Type: application/json" \
     -d '{
@@ -197,6 +201,7 @@ curl -v -X POST http://localhost:8000/api/v1/auth/token \
     }' \
     -c "$COOKIE_JAR" | jq '.'
 
+# token
 curl -v -X POST http://localhost:8000/api/v1/auth/token \
     -H "Content-Type: application/json" \
     -d '{
@@ -246,3 +251,101 @@ curl -X POST http://localhost:8000/api/v1/auth/logout \
 
 # check root domain
 curl -X GET http://localhost:8000/api/v1/auth/ | jq '.'
+
+# test
+# /test-reset
+curl -v -X GET http://localhost:8000/test/test-reset
+
+# domain=https://authapi.christianbueno.tech/api/v1/auth
+curl -X GET https://authapi.christianbueno.tech/api/v1/auth/ | jq '.'
+
+# token
+curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/token \
+    -H "Content-Type: application/json" \
+    -d '{
+    "identifier": "christianbueno.1@gmail.com",
+    "password": "maGazine1!"
+    }' \
+    -c "$COOKIE_JAR" | jq '.'
+
+# /admin/dashboards
+curl -X GET https://authapi.christianbueno.tech/api/v1/auth/admin/dashboards \
+  -H "Authorization: Bearer $ACCESS" \
+  -b "$COOKIE_JAR" | jq '.'
+
+# logout
+curl -X POST https://authapi.christianbueno.tech/api/v1/auth/logout \
+  -H "Authorization: Bearer $ACCESS" \
+  -b "$COOKIE_JAR" | jq '.'
+
+# signup
+curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/signup \
+    -H "Content-Type: application/json" \
+    -d '{
+    "username": "steverogers",
+    "email": "steverogers@ibm.com",
+    "password": "maGazine1!",
+    "disabled": false,
+    "role": "user"
+}' | jq '.'
+
+# token
+curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/token \
+    -H "Content-Type: application/json" \
+    -d '{
+    "identifier": "steverogers@ibm.com",
+    "password": "maGazine1!"
+    }' \
+    -c "$COOKIE_JAR" | jq '.'
+
+# /users/me
+curl -v -X GET https://authapi.christianbueno.tech/api/v1/auth/users/me \
+    -H "Authorization: Bearer $ACCESS" \
+    -b "$COOKIE_JAR" | jq '.'
+
+# /users/me/items
+curl -v -X GET https://authapi.christianbueno.tech/api/v1/auth/users/me/items \
+    -H "Authorization: Bearer $ACCESS" \
+    -b "$COOKIE_JAR" | jq '.'
+
+# get token-debug
+curl -X GET \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -H "Cookie: access_token=YOUR_COOKIE_ACCESS_TOKEN" \
+     https://authapi.christianbueno.tech/api/v1/auth/token-debug | jq '.'
+# /refresh-token
+curl -X POST https://authapi.christianbueno.tech/api/v1/auth/refresh-token \
+  -H "Authorization: Bearer $ACCESS" \
+  -b "$COOKIE_JAR" \
+  -c "$COOKIE_JAR.new" | jq '.'
+
+# /admin/users
+curl -X POST https://authapi.christianbueno.tech/api/v1/auth/admin/users \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -b "$COOKIE_JAR" \
+  -d '{
+    "username": "peterparker",
+    "email": "peterparker@ibm.com",
+    "password": "maGazine1!",
+    "disabled": false,
+    "role": "user"
+}' | jq '.'
+
+# /clear-tokens
+curl -X POST https://authapi.christianbueno.tech/api/v1/auth/clear-tokens
+
+# forgot-password
+curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/forgot-password \
+    -H "Content-Type: application/json" \
+    -d '{
+    "email": "christianbueno.1@gmail.com"
+    }' | jq '.'
+
+# reset-password
+curl -v -X POST https://authapi.christianbueno.tech/api/v1/auth/reset-password
+  -H "Content-Type: application/json" \
+  -d '{
+  "token": "$TOKEN",
+  "new_password": "maGazine1!"
+}' | jq '.'

@@ -16,6 +16,7 @@ pydantic-settings = "^2.3.1"
 bcrypt = "^4.2.1"
 typer = {extras = ["all"], version = "^0.15.1"}
 pydantic = {extras = ["email"], version = "^2.10.6"}
+aiosmtplib = "^4.0.0"
 
 [tool.poetry.group.dev.dependencies]
 uvicorn = "^0.30.1"

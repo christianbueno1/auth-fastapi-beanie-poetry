@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from auth_fastapi_beanie_poetry.core.token import create_access_token, create_refresh_token
 from auth_fastapi_beanie_poetry.schemas.user import ForgotPasswordRequest, LoginCredentials, ResetPasswordRequest, User, UserCreate, UserInDB
 # from auth_fastapi_beanie_poetry.services.auth_services import authenticate_user
-from auth_fastapi_beanie_poetry.services import auth_services
+from auth_fastapi_beanie_poetry.services import auth_services, email_services
 from auth_fastapi_beanie_poetry.models.token import Token, TokenData, TokenPayload
 from auth_fastapi_beanie_poetry.models.user import Role, User as UserModel
 from auth_fastapi_beanie_poetry.core.config import core_settings
@@ -16,7 +16,6 @@ import json
 # from app.services.auth_service import create_user, authenticate_user
 
 router = APIRouter()
-
 # @router.post("/signup")
 # async def signup(user: UserCreate):
 #     user = await create_user(user)
@@ -260,6 +259,7 @@ async def forgot_password(request: ForgotPasswordRequest):
     # In development mode, we return the token for testing
     if core_settings.DEBUG:
         reset_link = f"{core_settings.FULL_URL}/reset-password?token={token}"
+        await email_services.send_password_reset(request.email, token)
         return {
             "message": "If this email is registered, a password reset link has been sent.",
             "debug": {
@@ -268,9 +268,11 @@ async def forgot_password(request: ForgotPasswordRequest):
             }
         }
     
+    
     # In production, we would send an email with the token
     # TODO: Implement email sending functionality
     # example: await email_service.send_password_reset(request.email, token)
+    # await email_services.send_password_reset(request.email, token)
     
     # Always return the same response regardless of whether the email exists
     # This prevents email enumeration attacks
@@ -309,3 +311,4 @@ async def reset_password(request: ResetPasswordRequest):
 @router.get("/")
 async def root():
     return {"message": "Auth API is running"}
+

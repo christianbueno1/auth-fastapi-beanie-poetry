@@ -41,7 +41,7 @@ class User(Document):
         use_state_management = True
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "username": "johndoe",
                 "email": "johndoe@example.com",

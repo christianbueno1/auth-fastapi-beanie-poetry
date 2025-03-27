@@ -1,5 +1,7 @@
 #!/bin/bash
 # filepath: /home/chris/projects/auth-fastapi-beanie-poetry/create_admin.sh
+# Script to create an admin user and the first entry in the database
+# This script should be run after the FastAPI container is up and running
 
 set -e
 

@@ -15,6 +15,13 @@ class CoreSettings(BaseSettings):
     URL: str
     PREFIX: str
     FULL_URL: str
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_SSL_TLS: bool
+    USE_CREDENTIALS: bool
 
     class Config:
         env_file = ".env"

@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from auth_fastapi_beanie_poetry.api.v1.endpoints import test_template
 from auth_fastapi_beanie_poetry.db.mongo import init_db
 from auth_fastapi_beanie_poetry.api.v1.endpoints.auth import router as auth_router
 from auth_fastapi_beanie_poetry.core.config import core_settings
@@ -58,4 +59,5 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix=core_settings.PREFIX, tags=["auth"])
+app.include_router(test_template.router, prefix="/test", tags=["test"])
 # app.include_router(todo.router, prefix="/todos", tags=["todos"])
