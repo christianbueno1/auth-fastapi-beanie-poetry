@@ -49,3 +49,21 @@ Answer from Perplexity: pplx.ai/share
 | `/api/v1/auth/refresh-token` | `POST` | Refresh the access token using the current valid token. | `Authorization: Bearer $ACCESS` | None |
 | `/api/v1/auth/signup` | `POST` | Register a new user. | `Content-Type: application/json` | `{ "username": "brucewayne", "email": "brucewayne@ibm.com", "password": "maGazine1!", ... }` |
 | `/api/v1/auth/users` | `POST` | Register a new user (admin-only endpoint). | `Content-Type: application/json`, `Authorization: Bearer $ACCESS_TOKEN` | `{ "username": "tim123", "email": "tim123@ibm.com", "password": "maGazine1!", ... }` |
+
+### Table 3
+| Endpoint                | Method | Description | Request Body | Response |
+|-------------------------|--------|-------------|--------------|----------|
+| `/`                     | GET    | API root    | None         | `{ "message": "Welcome to the Auth API" }` |
+| `/token`                | POST   | Get access token (uses HttpOnly cookies) | `{ "identifier": "email or username", "password": "string" }` | `{ "access_token": "token", "token_type": "bearer" }` (stored in HttpOnly cookies) |
+| `/signup`               | POST   | Register a new user | `{ "username": "string", "email": "string", "password": "string", "disabled": false, "role": "user" }` | `{ "id": "uuid", "username": "string", "email": "string", "role": "string" }` |
+| `/users/me`             | GET    | Get current user info (requires HttpOnly cookies) | None | `{ "id": "uuid", "username": "string", "email": "string", "role": "string" }` |
+| `/users/me/items`       | GET    | Get user's items (requires HttpOnly cookies) | None | `[ { "item_id": "uuid", "name": "string" } ]` |
+| `/admin/dashboards`     | GET    | Get admin dashboard (requires HttpOnly cookies) | None | `{ "data": "admin info" }` |
+| `/admin/users`         | POST   | Create a new user (admin only, requires HttpOnly cookies) | `{ "username": "string", "email": "string", "password": "string", "disabled": false, "role": "user" }` | `{ "id": "uuid", "username": "string", "email": "string", "role": "string" }` |
+| `/logout`               | POST   | Logout user (requires HttpOnly cookies) | None | `{ "message": "Logged out" }` |
+| `/refresh-token`        | POST   | Refresh access token (requires HttpOnly cookies) | None | `{ "access_token": "new_token", "token_type": "bearer" }` |
+| `/token-debug`         | GET    | Debug token details (requires HttpOnly cookies) | None | `{ "token_data": "debug info" }` |
+| `/clear-tokens`        | POST   | Clear all tokens | None | `{ "message": "Tokens cleared" }` |
+| `/forgot-password`     | POST   | Request password reset | `{ "email": "string" }` | `{ "message": "Password reset email sent" }` |
+| `/reset-password`      | POST   | Reset password | `{ "token": "string", "new_password": "string" }` | `{ "message": "Password updated" }` |
+
