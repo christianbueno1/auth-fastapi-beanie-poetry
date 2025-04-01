@@ -11,7 +11,7 @@ async def send_password_reset(email: str, token: str):
     """
     Send a password reset email asynchronously using aiosmtplib.
     """
-    reset_link = f"{core_settings.FULL_URL}/reset-password?token={token}"
+    reset_link = f"{core_settings.API_FULL_URL}/reset-password?token={token}"
     
     # Load the HTML template
     template = env.get_template('reset_password.html')

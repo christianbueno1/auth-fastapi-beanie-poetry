@@ -8,9 +8,7 @@ from auth_fastapi_beanie_poetry.core.config import core_settings
 async def init_db():
     try:
         client = AsyncIOMotorClient(core_settings.MONGODB_URL, uuidRepresentation="standard")
-        # print(f"MongoDB URL: {core_settings.MONGODB_URL}")
-        # print(f"MongoDB Name: {core_settings.MONGODB_NAME}")
-        database= client[core_settings.MONGODB_NAME]
+        database= client[core_settings.MONGO_DB]
         
         # Initialize Beanie with all document models
         await init_beanie(database=database, document_models=[User, ResetToken])

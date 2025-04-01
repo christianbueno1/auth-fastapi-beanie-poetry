@@ -4,7 +4,7 @@ You have a user authentication services API using Python, JWT, FastAPI, Beanie O
 - Authentication services, MongoDB avoid duplicate entries.
 
 ## Steps
-```
+```bash
 # on f40 Linux install poetry
 sudo dnf install poetry
 #
@@ -40,7 +40,14 @@ poetry add uvicorn -G dev
 
 # run the app and use the .env.dev file
 # use underscore
-poetry run uvicorn auth_fastapi_beanie_poetry.main:app --reload --env-file .env.dev
+# .env.dev
+# .env.prod
+# .env.test
+# .env
+poetry run uvicorn auth_fastapi_beanie_poetry.main:app --reload --env-file .env
+# run uvicorn and use port 8001
+poetry run uvicorn auth_fastapi_beanie_poetry.main:app --reload --env-file .env --port 8001
+
 
 # create admin user
 # install the script
@@ -217,7 +224,7 @@ poetry install --no-lock
 ## Database
 - database name: registerdb
 - Use plural for collections, e.g. users, todos, posts
-```
+```bash
 # create the container db
 # pull the image
 podman pull docker.io/mongodb/mongodb-community-server:latest
@@ -237,7 +244,7 @@ flatpak run com.mongodb.Compass
 
 # use cli client
 podman exec -it auth bash
-mongosh -u chris -p maGazine1!
+mongosh -u chris -p 'maGazine1!devE'
 show dbs
 use registerdb
 #

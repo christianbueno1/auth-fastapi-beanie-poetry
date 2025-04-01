@@ -58,6 +58,6 @@ app.add_middleware(
     max_age=600,  # Cache preflight results for 10 minutes
 )
 
-app.include_router(auth_router, prefix=core_settings.PREFIX, tags=["auth"])
+app.include_router(auth_router, prefix=core_settings.API_PREFIX, tags=["auth"])
 app.include_router(test_template.router, prefix="/test", tags=["test"])
 # app.include_router(todo.router, prefix="/todos", tags=["todos"])

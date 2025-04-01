@@ -132,6 +132,9 @@ curl -v -X GET http://localhost:8000/api/v1/auth/users/me \
     -H "Authorization: Bearer $ACCESS" \
     -b "$COOKIE_JAR" | jq '.'
 
+curl -v -X GET http://localhost:8000/api/v1/auth/users/me \
+    -b "$COOKIE_JAR" | jq '.'
+
 # /users/me/items
 curl -v -X GET http://localhost:8000/api/v1/auth/users/me/items \
     -H "Authorization: Bearer $ACCESS" \
@@ -214,7 +217,7 @@ curl -v -X POST http://localhost:8000/api/v1/auth/token \
     -H "Content-Type: application/json" \
     -d '{
     "identifier": "christianbueno.1@gmail.com",
-    "password": "hello1!A"
+    "password": "maGazine1!"
     }' \
     -c "$COOKIE_JAR" | jq '.'
 

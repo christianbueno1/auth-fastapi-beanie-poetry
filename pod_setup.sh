@@ -66,13 +66,29 @@ APP_VERSION=1.0.0
 DEBUG=false
 ENVIRONMENT=production
 
-URL=https://authapi.christianbueno.tech
-PREFIX=/api/v1/auth
-FULL_URL=${URL}${PREFIX}
+FASTAPI_PORT=8001
+API_BASE_URL=https://authapi.christianbueno.tech
+API_PREFIX=/api/v1/auth
+API_FULL_URL=${API_BASE_URL}${API_PREFIX}
 
 # MongoDB settings
+MONGO_USER=chris
+MONGO_PASSWORD=maGazine1!devE
+MONGO_DB=auth_db
+MONGO_HOST=127.0.0.1
+MONGO_PORT=27017
 MONGODB_URL=mongodb://$MONGO_USER:$MONGO_PASSWORD@$MONGO_CONTAINER_NAME:27017/$MONGO_DB?authSource=$MONGO_DB
-MONGODB_NAME=$MONGO_DB
+
+# Containerized MongoDB settings
+# Podman settings
+PODMAN_POD_NAME=authapi-pod
+PODMAN_MONGO_IMAGE_NAME=docker.io/mongodb/mongodb-community-server
+PODMAN_MONGO_IMAGE_TAG=7.0.16-ubi9
+PODMAN_MONGO_IMAGE=${PODMAN_MONGO_IMAGE_NAME}:${PODMAN_MONGO_IMAGE_TAG}
+PODMAN_MONGO_PORT=27017
+PODMAN_MONGO_CONTAINER=authapi-mongo
+# FASTAPI settings
+PODMAN_FASTAPI_PORT=8001
 
 # JWT settings
 JWT_SECRET=42891bae22bf0ac1857c5b9c93cc0bec74399e366a9dbadc73181d95fe8f0d2f

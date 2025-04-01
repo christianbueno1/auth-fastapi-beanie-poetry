@@ -26,5 +26,5 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-start = "auth_fastapi_beanie_poetry.main:start"
+dev = "auth_fastapi_beanie_poetry.cli:dev"
 create-admin = "auth_fastapi_beanie_poetry.cli:cli"

@@ -4,14 +4,15 @@ from beanie import Document, Indexed
 from pydantic import Field, EmailStr, StringConstraints
 from typing import Annotated
 from auth_fastapi_beanie_poetry.models.token import Token, TokenData
+# from auth_fastapi_beanie_poetry.schemas.user import UsernameType
 
 class Role(str, Enum):
     ADMIN = "admin"
     USER = "user"
     GUEST = "guest"
 
-# Username: min 3 chars, max 20 chars, indexed and unique
-UsernameType = Annotated[str, StringConstraints(min_length=3, max_length=20, pattern="^[a-zA-Z0-9_]+$"), Indexed(unique=True)]
+# Username: min 3 chars, max 30 chars, indexed and unique
+UsernameType = Annotated[str, StringConstraints(min_length=3, max_length=30, pattern="^[a-zA-Z0-9_.-]+$"), Indexed(unique=True)]
 
 class User(Document):
     username: UsernameType

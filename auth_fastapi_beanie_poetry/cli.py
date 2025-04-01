@@ -1,10 +1,13 @@
 import typer
 import asyncio
+
+import uvicorn
 from auth_fastapi_beanie_poetry.models.user import Role
 from auth_fastapi_beanie_poetry.schemas.user import UserCreate, UserInDB
 from auth_fastapi_beanie_poetry.db.mongo import init_db
 from auth_fastapi_beanie_poetry.services.auth_services import create_user
 from fastapi import HTTPException
+from auth_fastapi_beanie_poetry.core.config import core_settings
 
 cli = typer.Typer()
 
@@ -49,6 +52,9 @@ def create_admin(
         asyncio.run(_create_admin())
     except Exception as e:
         print(f"Failed to create admin user: {e}")
+
+def dev():
+    uvicorn.run("auth_fastapi_beanie_poetry.main:app", reload=True, env_file=".env", port=core_settings.FASTAPI_PORT, host="127.0.0.1")
 
 if __name__ == "__main__":
     cli()

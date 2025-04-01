@@ -56,10 +56,13 @@ async def login(response: Response, credentials: LoginCredentials) -> JSONRespon
     # Content-type header is set to application/json
     response = JSONResponse(content=content)
 
+    # print(f"Setting access_token: {access_token}")
+
     # Set HttpOnly cookies
     response.set_cookie(
         key="access_token",
         value=f"Bearer {access_token}",
+        path="/api/v1/auth",  # Restrict to auth endpoint
         # value=access_token,
         httponly=True,
         max_age=core_settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
@@ -67,16 +70,18 @@ async def login(response: Response, credentials: LoginCredentials) -> JSONRespon
         samesite="lax",
         secure=core_settings.ENVIRONMENT == "production",  # Only secure in production
         # quote_cookie_value=False,  # Disable quoting of the cookie value
+        # path="/api/v1/auth/token",  # Restrict to token endpoint
+        # access_token avaible to all endpoints
     )
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
+        path="/api/v1/auth/refresh-token",  # Restrict to refresh endpoint
         httponly=True,
         max_age=core_settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         expires=core_settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         samesite="lax",
         secure=core_settings.ENVIRONMENT == "production",  # Only secure in production
-        path="/api/v1/auth/refresh-token",  # Restrict to refresh endpoint
     )
 
     # Return user info without exposing tokens in response body
@@ -132,7 +137,8 @@ async def refresh_token(response: Response, user: Annotated[UserInDB, Depends(au
     }
     response = JSONResponse(content=content)
 
-    # Order is important: set cookies after setting the response content, if you set the content after setting the cookies, the cookies will not be included in the response
+    # Order is important: set cookies after setting the response content, if you set the cookies before the content, the cookies will not be included in the response
+    
     # Set the new access token as HttpOnly cookie
     response.set_cookie(
         key="access_token",
@@ -258,7 +264,7 @@ async def forgot_password(request: ForgotPasswordRequest):
     
     # In development mode, we return the token for testing
     if core_settings.DEBUG:
-        reset_link = f"{core_settings.FULL_URL}/reset-password?token={token}"
+        reset_link = f"{core_settings.API_FULL_URL}/reset-password?token={token}"
         await email_services.send_password_reset(request.email, token)
         return {
             "message": "If this email is registered, a password reset link has been sent.",

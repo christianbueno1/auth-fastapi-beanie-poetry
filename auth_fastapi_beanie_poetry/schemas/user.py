@@ -1,12 +1,13 @@
+from beanie import Indexed
 from pydantic import BaseModel, EmailStr, Field, GetCoreSchemaHandler, GetJsonSchemaHandler, ValidationInfo, field_validator, StringConstraints
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, core_schema
 from auth_fastapi_beanie_poetry.models.token import Token, TokenData
-from auth_fastapi_beanie_poetry.models.user import Role
+from auth_fastapi_beanie_poetry.models.user import Role, UsernameType
 from typing import Annotated, Any, ClassVar
 
 # Username: min 3 chars, max 30 chars, indexed and unique
-UsernameType = Annotated[str, StringConstraints(min_length=3, max_length=30, pattern="^[a-zA-Z0-9_]+$")]
+# UsernameType = Annotated[str, StringConstraints(min_length=3, max_length=30, pattern="^[a-zA-Z0-9_]+$"), Indexed(unique=True)]
 
 # Validate password
     # at least 1 uppercase letter

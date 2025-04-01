@@ -27,7 +27,7 @@ from auth_fastapi_beanie_poetry.models.reset_token import ResetToken
 
 # Relative path is always the right approach, regardless of environment
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl=f"{core_settings.PREFIX.lstrip('/')}/token", auto_error=False
+    tokenUrl=f"{core_settings.API_PREFIX.lstrip('/')}/token", auto_error=False
 )
 
 # Create a function that combines both token sources
