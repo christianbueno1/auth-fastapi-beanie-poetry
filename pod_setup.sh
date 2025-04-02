@@ -97,7 +97,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60
 REFRESH_TOKEN_EXPIRE_DAYS=1
 
 # Security
-ALLOWED_ORIGINS=["http://localhost:4321","https://christianbueno.tech"]
+ALLOWED_ORIGINS=["http://localhost:3000","http://localhost:5173","http://localhost:4321","https://yourproductionsite.com"]
 
 # Email configuration
 MAIL_USERNAME=prabbzacsspy4tdy

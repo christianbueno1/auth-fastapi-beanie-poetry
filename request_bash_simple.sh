@@ -145,6 +145,10 @@ curl -X GET http://localhost:8000/api/v1/auth/admin/dashboards \
   -H "Authorization: Bearer $ACCESS" \
   -b "$COOKIE_JAR" | jq '.'
 
+# /admin/dashboards
+curl -X GET http://localhost:8000/api/v1/auth/admin/dashboards \
+  -b "$COOKIE_JAR" | jq '.'
+
 curl -X POST http://localhost:8000/api/v1/auth/refresh-token \
   -H "Authorization: Bearer $ACCESS" \
   -b "$COOKIE_JAR" \
@@ -204,6 +208,7 @@ curl -v -X POST http://localhost:8000/api/v1/auth/token \
     }' \
     -c "$COOKIE_JAR" | jq '.'
 
+# export COOKIE_JAR="cookies.txt"
 # token
 curl -v -X POST http://localhost:8000/api/v1/auth/token \
     -H "Content-Type: application/json" \
@@ -250,6 +255,10 @@ curl -X POST http://localhost:8000/api/v1/auth/clear-tokens
 # logout
 curl -X POST http://localhost:8000/api/v1/auth/logout \
   -H "Authorization: Bearer $ACCESS" \
+  -b "$COOKIE_JAR" | jq '.'
+
+# logout
+curl -X POST http://localhost:8000/api/v1/auth/logout \
   -b "$COOKIE_JAR" | jq '.'
 
 # check root domain
