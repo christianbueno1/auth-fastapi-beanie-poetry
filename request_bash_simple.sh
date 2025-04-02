@@ -285,6 +285,10 @@ curl -X GET https://authapi.christianbueno.tech/api/v1/auth/admin/dashboards \
   -H "Authorization: Bearer $ACCESS" \
   -b "$COOKIE_JAR" | jq '.'
 
+# /admin/dashboards
+curl -X GET https://authapi.christianbueno.tech/api/v1/auth/admin/dashboards \
+  -b "$COOKIE_JAR" | jq '.'
+
 # logout
 curl -X POST https://authapi.christianbueno.tech/api/v1/auth/logout \
   -H "Authorization: Bearer $ACCESS" \

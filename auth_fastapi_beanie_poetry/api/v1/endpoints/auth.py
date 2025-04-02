@@ -58,17 +58,29 @@ async def login(response: Response, credentials: LoginCredentials) -> JSONRespon
 
     # print(f"Setting access_token: {access_token}")
 
+    # response.set_cookie(
+    #     key="Authorization",  # Cookie name
+    #     value=f"Bearer {token}",  # Value, typically a JWT token
+    #     httponly=True,  # Prevents access via JavaScript
+    #     secure=True,  # Ensures cookies are sent only over HTTPS
+    #     samesite="none",  # Allows cross-domain cookies
+    #     domain=".christianbueno.tech",  # Matches your backend domain
+    #     max_age=1800,  # Cookie lifetime in seconds (30 minutes)
+    #     expires=1800  # Sets expiration time explicitly
+    # )
+
     # Set HttpOnly cookies
     response.set_cookie(
         key="access_token",
         value=f"Bearer {access_token}",
-        domain="localhost",  # Set domain to localhost for local testing
+        # domain="localhost",  # Set domain to localhost for local testing
+        domain=".christianbueno.tech",  # Matches your backend domain
         path="/api/v1/auth",  # Restrict to auth endpoint
         # value=access_token,
         httponly=True,
         max_age=core_settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         expires=core_settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        samesite="lax",
+        samesite="none" if core_settings.ENVIRONMENT == "production" else "lax",
         secure=core_settings.ENVIRONMENT == "production",  # Only secure in production
         # quote_cookie_value=False,  # Disable quoting of the cookie value
         # path="/api/v1/auth/token",  # Restrict to token endpoint
@@ -77,12 +89,13 @@ async def login(response: Response, credentials: LoginCredentials) -> JSONRespon
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
-        domain="localhost",  # Set domain to localhost for local testing
+        # domain="localhost",  # Set domain to localhost for local testing
+        domain=".christianbueno.tech",  # Matches your backend domain
         path="/api/v1/auth/refresh-token",  # Restrict to refresh endpoint
         httponly=True,
         max_age=core_settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         expires=core_settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-        samesite="lax",
+        samesite="none" if core_settings.ENVIRONMENT == "production" else "lax",
         secure=core_settings.ENVIRONMENT == "production",  # Only secure in production
     )
 
