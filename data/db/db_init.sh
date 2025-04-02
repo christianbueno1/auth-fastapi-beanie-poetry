@@ -6,7 +6,10 @@
 set -e  # Exit on any error
 
 # Define the path to the .env file
-ENV_FILE="/home/chris/projects/auth-fastapi-beanie-poetry/.env"
+# absolute path to the .env file
+# ENV_FILE="/home/chris/projects/auth-fastapi-beanie-poetry/.env"
+# relative path to the .env file
+ENV_FILE="../../.env"
 # Check if the .env file exists
 if [ ! -f "$ENV_FILE" ]; then
     echo "ERROR: .env file not found at $ENV_FILE"

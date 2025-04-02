@@ -1,25 +1,25 @@
 #!/bin/bash
 
 # Variables
-POD_NAME="authapi-pod"
-FASTAPI_IMAGE="docker.io/christianbueno1/authapi-fastapi:1.0"
-MONGO_IMAGE="docker.io/mongodb/mongodb-community-server:7.0.16-ubi9"
-MONGO_CONTAINER_NAME="authapi-mongo"
-FASTAPI_CONTAINER_NAME="authapi-fastapi"
+PODMAN_POD_NAME="authapi-pod"
+PODMAN_FASTAPI_IMAGE="docker.io/christianbueno1/authapi-fastapi:1.0"
+PODMAN_MONGO_IMAGE="docker.io/mongodb/mongodb-community-server:7.0.16-ubi9"
+PODMAN_MONGO_CONTAINER="authapi-mongo"
+PODMAN_FASTAPI_CONTAINER="authapi-fastapi"
 MONGO_USER="chris"
 MONGO_PASSWORD="maGazine1!devE"
 MONGO_DB="auth_db"
 
 # Step 1: Create a Podman pod
-echo "🚀 Creating Podman pod: $POD_NAME"
-podman pod create --name $POD_NAME -p 8000:8000 -p 27017:27017
+echo "🚀 Creating Podman pod: $PODMAN_POD_NAME"
+podman pod create --name $PODMAN_POD_NAME -p 8000:8000 -p 27017:27017
 
 # Step 2: Start MongoDB container
 echo "🐳 Starting MongoDB container..."
-podman run -d --pod $POD_NAME --name $MONGO_CONTAINER_NAME \
+podman run -d --pod $PODMAN_POD_NAME --name $PODMAN_MONGO_CONTAINER \
   -e MONGO_INITDB_ROOT_USERNAME="$MONGO_USER" \
   -e MONGO_INITDB_ROOT_PASSWORD="$MONGO_PASSWORD" \
-  $MONGO_IMAGE
+  $PODMAN_MONGO_IMAGE
 
 # Wait for MongoDB to be ready
 echo "⏳ Waiting for MongoDB to start up..."
@@ -27,7 +27,7 @@ sleep 10
 
 # Step 3: Create MongoDB user for the application
 echo "🔑 Creating MongoDB user for the application..."
-podman exec $MONGO_CONTAINER_NAME mongosh --eval "
+podman exec $PODMAN_MONGO_CONTAINER mongosh --eval "
 db = db.getSiblingDB('admin');
 db.auth({user: '$MONGO_USER', pwd: '$MONGO_PASSWORD'});
 db = db.getSiblingDB('$MONGO_DB');
@@ -77,7 +77,7 @@ MONGO_PASSWORD=maGazine1!devE
 MONGO_DB=auth_db
 MONGO_HOST=127.0.0.1
 MONGO_PORT=27017
-MONGODB_URL=mongodb://$MONGO_USER:$MONGO_PASSWORD@$MONGO_CONTAINER_NAME:27017/$MONGO_DB?authSource=$MONGO_DB
+MONGODB_URL=mongodb://$MONGO_USER:$MONGO_PASSWORD@$PODMAN_MONGO_CONTAINER:27017/$MONGO_DB?authSource=$MONGO_DB
 
 # Containerized MongoDB settings
 # Podman settings
@@ -111,13 +111,13 @@ EOF
 
 # Step 5: Build the FastAPI container
 echo "🏗️  Building FastAPI container..."
-podman build -t $FASTAPI_IMAGE -f Containerfile .
+podman build -t $PODMAN_FASTAPI_IMAGE -f Containerfile .
 
 # Step 6: Start the FastAPI container
 echo "🚀 Starting FastAPI container..."
-podman run -d --pod $POD_NAME --name $FASTAPI_CONTAINER_NAME \
+podman run -d --pod $PODMAN_POD_NAME --name $PODMAN_FASTAPI_CONTAINER \
   --env-file .env \
-  $FASTAPI_IMAGE
+  $PODMAN_FASTAPI_IMAGE
 
 # Step 7: Display pod and container status
 echo "🔍 Displaying pod and container status..."
