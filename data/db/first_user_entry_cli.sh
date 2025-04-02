@@ -6,7 +6,7 @@ set -e  # Exit on any error
 
 # Variables
 FASTAPI_CONTAINER_NAME="authapi-fastapi"
-USERNAME="christianbueno1"
+USERNAME="christianbueno.1"
 EMAIL="christianbueno.1@gmail.com"
 PASSWORD="maGazine1!"
 
