@@ -7,7 +7,7 @@ set -e
 
 # Variables
 CONTAINER_NAME="authapi-fastapi"
-ADMIN_USERNAME="christianbueno1"
+ADMIN_USERNAME="christianbueno.1"
 ADMIN_EMAIL="christianbueno.1@gmail.com"
 ADMIN_PASSWORD="maGazine1!"
 
